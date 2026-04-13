@@ -4,15 +4,14 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --env-file=.env --watch --import tsx src/server.ts",
-    "start": "node --env-file=.env --import tsx src/server.ts",
+    "dev": "bun --watch src/server.ts",
+    "start": "bun src/server.ts",
     "auth:generate": "better-auth generate --config src/lib/auth.ts --yes",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema prisma/schema.prisma"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.6.2",
-    "@elysiajs/node": "^1.4.5",
     "@elysiajs/openapi": "^1.4.14",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "7",
@@ -26,8 +25,7 @@
     "@better-auth/cli": "^1.4.21",
     "@types/nodemailer": "^8.0.0",
     "bun-types": "latest",
-    "prisma": "7",
-    "tsx": "^4.21.0"
+    "prisma": "7"
   },
   "module": "src/server.js"
 }
