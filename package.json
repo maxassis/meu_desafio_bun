@@ -3,13 +3,23 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/server.ts",
+    "start": "bun run src/server.ts",
+    "auth:generate": "better-auth generate --config src/lib/auth.ts --yes",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@better-auth/prisma-adapter": "^1.6.2",
+    "@prisma/client": "6.18.0",
+    "better-auth": "^1.6.2",
+    "dotenv": "^17.4.2",
     "elysia": "latest"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@better-auth/cli": "^1.4.21",
+    "bun-types": "latest",
+    "prisma": "6.18.0"
   },
-  "module": "src/index.js"
+  "module": "src/server.js"
 }

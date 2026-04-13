@@ -1,0 +1,138 @@
+# Arquitetura do Projeto
+
+Este projeto usa Bun + Elysia com uma arquitetura simples, funcional e modular.
+
+## Objetivo
+
+Manter uma base facil de entender, testar e evoluir, evitando abstracoes prematuras.
+
+## Principios
+
+- Preferir mudancas pequenas e diretas
+- Organizar por feature ou dominio
+- Manter handlers finos
+- Colocar regra de negocio em `service`
+- Evitar injecao de dependencia formal no inicio
+- Adicionar `repository` apenas quando houver banco ou integracao externa relevante
+- Evitar estruturas globais por tipo para o projeto inteiro
+
+## Estrutura Base
+
+```txt
+src/
+  app.ts
+  server.ts
+  features/
+    <feature>/
+      <feature>.route.ts
+      <feature>.service.ts
+  shared/
+    config/
+    db/
+    errors/
+    utils/
+```
+
+## Responsabilidades
+
+### `app.ts`
+
+- Compor a aplicacao
+- Registrar plugins e rotas
+
+### `server.ts`
+
+- Subir o servidor
+- Definir porta e bootstrap
+
+### `features/<feature>/<feature>.route.ts`
+
+- Definir endpoints
+- Receber `params`, `query` e `body`
+- Chamar o `service`
+- Nao conter regra de negocio complexa
+
+### `features/<feature>/<feature>.service.ts`
+
+- Conter regra de negocio
+- Orquestrar chamadas internas
+- Permanecer independente da camada HTTP sempre que possivel
+
+### `features/<feature>/<feature>.repository.ts`
+
+Criar somente quando necessario.
+Usar para:
+
+- acesso ao banco
+- acesso a APIs externas
+- persistencia ou leitura de dados
+
+### `features/<feature>/<feature>.schema.ts`
+
+Criar quando houver validacao de entrada e saida.
+Usar para:
+
+- `body`
+- `params`
+- `query`
+- `response`
+
+### `shared/`
+
+Codigo transversal reutilizavel:
+
+- `config/`: variaveis de ambiente e configuracao
+- `db/`: conexao com banco, Prisma, helpers de persistencia
+- `errors/`: erros padronizados
+- `utils/`: helpers genericos
+
+## Convencoes
+
+- Cada feature deve ficar isolada na propria pasta
+- Nomes de arquivos devem seguir o padrao `<feature>.<papel>.ts`
+- Nao colocar regra de negocio direto em rotas
+- Nao acessar banco diretamente da rota
+- Nao criar abstracoes genericas sem necessidade real
+- Preferir imports diretos entre arquivos enquanto o projeto for pequeno ou medio
+
+## Escalabilidade
+
+Quando o projeto crescer, evoluir nesta ordem:
+
+1. Adicionar `schema.ts` nas features
+2. Adicionar `repository.ts` onde houver persistencia
+3. Criar `shared/config`
+4. Criar tratamento global de erros
+5. Adicionar testes por feature
+
+## Banco de Dados
+
+Se usar Prisma:
+
+- manter client compartilhado em `src/shared/db/prisma.ts`
+- usar Prisma via `repository` ou, em casos simples, via `service`
+- evitar espalhar acesso ao banco em multiplas camadas
+
+## O Que Evitar
+
+- Arquitetura complexa demais cedo demais
+- Injecao de dependencia formal sem necessidade
+- Pastas globais por tipo para o projeto inteiro
+- Rotas gigantes
+- Services que conhecem detalhes HTTP
+- Repositories sem necessidade real
+
+## Exemplo de Fluxo
+
+- `route` recebe a requisicao
+- `service` executa a regra
+- `repository` acessa dados, quando existir
+- `route` devolve a resposta
+
+## Regra de Decisao
+
+Se houver duvida entre duas abordagens corretas:
+
+- escolher a mais simples
+- escolher a que adiciona menos arquivos
+- escolher a que preserva a clareza da feature
