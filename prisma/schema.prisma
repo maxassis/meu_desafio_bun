@@ -12,6 +12,18 @@ datasource db {
   provider = "sqlite"
 }
 
+enum Gender {
+  homem
+  mulher
+  nao_binario
+  prefiro_nao_responder
+}
+
+enum Sport {
+  corrida
+  bicicleta
+}
+
 model User {
   id            String    @id
   name          String
@@ -20,11 +32,14 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  userData      UserData?
+  inscriptions  Inscription[]
+  tasks         Task[]
   sessions      Session[]
   accounts      Account[]
 
   @@unique([email])
-  @@map("user")
+  @@map("users")
 }
 
 model Session {
@@ -73,4 +88,76 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Jwks {
+  id         String    @id
+  publicKey  String
+  privateKey String
+  createdAt  DateTime
+  expiresAt  DateTime?
+
+  @@map("jwks")
+}
+
+model UserData {
+  id              String   @id @default(cuid())
+  avatarFilename  String?
+  bio             String?
+  gender          Gender?
+  sport           Sport?
+  birthDate       String?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String   @unique
+
+  @@map("userData")
+}
+
+model Desafio {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  location     Json
+  distance     Decimal       @default(0)
+  photo        String        @default("")
+  inscriptions Inscription[]
+  priceId      String
+  active       Boolean       @default(true)
+  purchaseData Json          @default("{}")
+
+  @@map("desafio")
+}
+
+model Inscription {
+  id          Int       @id @default(autoincrement())
+  userId      String
+  desafioId   String
+  progress    Decimal   @default(0)
+  tasks       Task[]
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  desafio     Desafio   @relation(fields: [desafioId], references: [id], onDelete: Cascade)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  @@map("inscription")
+}
+
+model Task {
+  id            Int         @id @default(autoincrement())
+  name          String
+  environment   String
+  date          DateTime?
+  duration      Decimal     @default(0)
+  calories      Int?
+  local         String?
+  distanceKm    Decimal     @default(0)
+  inscriptionId Int
+  inscription   Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  gpsTask       Boolean?    @default(false)
+
+  @@map("tasks")
 }
