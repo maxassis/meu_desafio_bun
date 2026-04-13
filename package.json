@@ -13,15 +13,18 @@
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.6.2",
     "@elysiajs/node": "^1.4.5",
-    "@prisma/adapter-better-sqlite3": "^7.7.0",
+    "@elysiajs/openapi": "^1.4.14",
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "7",
     "better-auth": "^1.6.2",
-    "better-sqlite3": "^12.9.0",
     "dotenv": "^17.4.2",
-    "elysia": "latest"
+    "elysia": "latest",
+    "nodemailer": "^8.0.5",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
+    "@types/nodemailer": "^8.0.0",
     "bun-types": "latest",
     "prisma": "7",
     "tsx": "^4.21.0"

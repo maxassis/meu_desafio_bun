@@ -1,15 +1,41 @@
-# Elysia with Bun runtime
+# Meu Desafio Bun
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
+## Banco de dados
+
+Suba o Postgres com Docker ou Podman:
+
 ```bash
-bun create elysia ./elysia-example
+docker compose up -d
 ```
 
-## Development
-To start the development server run:
+ou:
+
 ```bash
-bun run dev
+podman compose up -d
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+O projeto usa a seguinte `DATABASE_URL` por padrao:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/meu_desafio?schema=public
+```
+
+## Desenvolvimento
+
+Depois de subir o banco, gere o client Prisma e aplique a migration:
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+Inicie a aplicacao:
+
+```bash
+npm run dev
+```
+
+## Documentacao da API
+
+- Scalar: `http://localhost:3000/openapi`
+- Better Auth: rotas nativas em `/api/auth/*`
