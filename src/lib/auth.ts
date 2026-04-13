@@ -1,10 +1,18 @@
 import { prismaAdapter } from "@better-auth/prisma-adapter";
+import { render, toPlainText } from "@react-email/render";
 import { betterAuth } from "better-auth";
-import { bearer, jwt, openAPI } from "better-auth/plugins";
+import { bearer, emailOTP, jwt, openAPI } from "better-auth/plugins";
+import { createElement } from "react";
 
 import { sendEmail } from "./email";
+import {
+  EmailVerificationOtpEmail,
+  emailVerificationOtpSubject,
+} from "./email/templates/email-verification-otp-email";
 import { env } from "../shared/config/env";
 import { prisma } from "../shared/db/prisma";
+
+const emailVerificationOtpExpiresInSeconds = 300;
 
 export const auth = betterAuth({
   secret: env.betterAuthSecret,
@@ -20,16 +28,44 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     sendOnSignIn: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
-      await sendEmail({
-        to: user.email,
-        subject: "Confirme seu e-mail",
-        text: `Clique no link para confirmar seu cadastro: ${url}`,
-        html: `<p>Clique no link para confirmar seu cadastro:</p><p><a href="${url}">${url}</a></p>`,
-      });
-    },
   },
-  plugins: [bearer({ requireSignature: true }), jwt(), openAPI()],
+  plugins: [
+    bearer({ requireSignature: true }),
+    jwt(),
+    openAPI(),
+    emailOTP({
+      allowedAttempts: 3,
+      expiresIn: emailVerificationOtpExpiresInSeconds,
+      otpLength: 5,
+      overrideDefaultEmailVerification: true,
+      resendStrategy: "reuse",
+      async sendVerificationOTP({ email, otp, type }) {
+        if (type !== "email-verification") {
+          return;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { name: true },
+        });
+
+        const html = await render(
+          createElement(EmailVerificationOtpEmail, {
+            expiresInMinutes: Math.ceil(emailVerificationOtpExpiresInSeconds / 60),
+            name: user?.name ?? "",
+            otp,
+          }),
+        );
+
+        await sendEmail({
+          to: email,
+          subject: emailVerificationOtpSubject,
+          text: toPlainText(html),
+          html,
+        });
+      },
+    }),
+  ],
 });
 
 let schemaPromise: ReturnType<typeof auth.api.generateOpenAPISchema> | undefined;

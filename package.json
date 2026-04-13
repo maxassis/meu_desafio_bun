@@ -15,11 +15,15 @@
     "@elysiajs/openapi": "^1.4.14",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "7",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.6",
     "better-auth": "^1.6.2",
     "dotenv": "^17.4.2",
     "elysia": "latest",
     "nodemailer": "^8.0.5",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
