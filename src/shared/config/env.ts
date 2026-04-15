@@ -3,6 +3,8 @@ function getRequiredEnv(
     | "BETTER_AUTH_SECRET"
     | "BETTER_AUTH_URL"
     | "DATABASE_URL"
+    | "GOOGLE_CLIENT_ID"
+    | "GOOGLE_CLIENT_SECRET"
     | "EMAIL_HOST"
     | "EMAIL_PORT"
     | "EMAIL_USER"
@@ -18,10 +20,17 @@ function getRequiredEnv(
   return value;
 }
 
+function getOptionalEnv(name: "FRONTEND_URL") {
+  return process.env[name];
+}
+
 export const env = {
   betterAuthSecret: getRequiredEnv("BETTER_AUTH_SECRET"),
   betterAuthUrl: getRequiredEnv("BETTER_AUTH_URL"),
   databaseUrl: getRequiredEnv("DATABASE_URL"),
+  googleClientId: getRequiredEnv("GOOGLE_CLIENT_ID"),
+  googleClientSecret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
+  frontendUrl: getOptionalEnv("FRONTEND_URL"),
   emailHost: getRequiredEnv("EMAIL_HOST"),
   emailPort: Number(getRequiredEnv("EMAIL_PORT")),
   emailUser: getRequiredEnv("EMAIL_USER"),

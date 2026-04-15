@@ -40,6 +40,36 @@ bun run dev
 - Scalar: `http://localhost:3000/openapi`
 - Better Auth: rotas nativas em `/api/auth/*`
 
+## Autenticacao com Google
+
+Defina as variaveis abaixo no `.env`:
+
+```env
+GOOGLE_CLIENT_ID=seu-client-id
+GOOGLE_CLIENT_SECRET=seu-client-secret
+FRONTEND_URL=http://localhost:3000
+```
+
+No Google Cloud Console, configure o URI de redirecionamento autorizado exatamente como:
+
+```text
+http://localhost:3000/api/auth/callback/google
+```
+
+Para iniciar o login social:
+
+```bash
+curl -X POST http://localhost:3000/api/auth/sign-in/social \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "google",
+    "callbackURL": "http://localhost:3000",
+    "disableRedirect": true
+  }'
+```
+
+A resposta retorna a `url` para redirecionar o usuario ao Google.
+
 ## Verificacao por OTP
 
 O projeto usa OTP por e-mail no fluxo de verificacao de conta.

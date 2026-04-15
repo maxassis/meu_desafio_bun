@@ -17,9 +17,16 @@ const emailVerificationOtpExpiresInSeconds = 300;
 export const auth = betterAuth({
   secret: env.betterAuthSecret,
   baseURL: env.betterAuthUrl,
+  trustedOrigins: env.frontendUrl ? [env.frontendUrl] : undefined,
   database: prismaAdapter(prisma, {
-    provider: "sqlite",
+    provider: "postgresql",
   }),
+  socialProviders: {
+    google: {
+      clientId: env.googleClientId,
+      clientSecret: env.googleClientSecret,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
