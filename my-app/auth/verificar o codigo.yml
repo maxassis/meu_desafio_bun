@@ -1,0 +1,15 @@
+info:
+  name: verificar o codigo
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: /api/auth/email-otp/verify-email
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -6,6 +6,19 @@ info:
 http:
   method: POST
   url: http://localhost:3000/api/auth/sign-in/social
+  headers:
+    - name: credentials
+      value: include
+    - name: Origin
+      value: http://localhost:3000
+  body:
+    type: json
+    data: |-
+      {
+        "provider": "google",
+        "callbackURL": "http://localhost:3000",
+        "disableRedirect": true
+      }
   auth: inherit
 
 settings:

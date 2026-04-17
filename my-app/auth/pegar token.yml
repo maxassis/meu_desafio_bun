@@ -1,0 +1,17 @@
+info:
+  name: pegar token
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3000/api/auth/token
+  auth:
+    type: bearer
+    token: 0L3s054Oacxr7sMhfvnAhmOnOyxqZln2
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
