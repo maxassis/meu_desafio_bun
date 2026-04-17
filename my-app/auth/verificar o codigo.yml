@@ -5,7 +5,17 @@ info:
 
 http:
   method: POST
-  url: /api/auth/email-otp/verify-email
+  url: http://localhost:3000/api/auth/email-otp/verify-email
+  headers:
+    - name: Origin
+      value: http://localhost:3000
+  body:
+    type: json
+    data: |-
+      {
+        "email": "teste@example.com",
+        "otp": "35315"
+      }
   auth: inherit
 
 settings:

@@ -13,8 +13,8 @@ http:
     type: json
     data: |-
       {
-        "name": "max",
-        "email": "teddy@example.com",
+        "name": "teste",
+        "email": "teste@example.com",
         "password": "12345678",
         "callbackURL": "http://localhost:3000"
       }

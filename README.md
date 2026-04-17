@@ -99,7 +99,7 @@ curl -X POST http://localhost:3000/api/auth/email-otp/verify-email \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
-    "otp": "123456"
+    "otp": "12345"
   }'
 ```
 
@@ -112,9 +112,39 @@ Web e mobile podem usar o mesmo fluxo:
 3. Botao `Reenviar codigo`
 4. Confirmacao com `verify-email`
 
+## Sessao no mobile
+
+Para app mobile, use apenas o `session token` do Better Auth.
+
+### Fonte de verdade da sessao
+
+- Credencial principal: token retornado no header `set-auth-token`
+- Transporte: `Authorization: Bearer <sessionToken>`
+- Validacao da sessao: `GET /api/auth/get-session`
+
+### Fluxo recomendado
+
+1. Faça login, cadastro ou verificacao de e-mail
+2. Leia o header `set-auth-token` da resposta
+3. Salve esse token em armazenamento seguro do dispositivo
+4. Envie `Authorization: Bearer <sessionToken>` em toda chamada autenticada
+5. Ao abrir o app, valide a sessao chamando `GET /api/auth/get-session`
+6. Se a resposta trouxer um novo `set-auth-token`, substitua o token salvo
+
+### Exemplo para validar a sessao
+
+```bash
+curl http://localhost:3000/api/auth/get-session \
+  -H "Authorization: Bearer <sessionToken>"
+```
+
+### Quando usar `/api/auth/token`
+
+`GET /api/auth/token` continua disponivel, mas e opcional. Use apenas se algum outro servico exigir JWT. No app mobile, a sessao deve ser controlada pelo `session token`, nao pelo JWT.
+
 ### Regras atuais
 
-- OTP com 6 digitos
+- OTP com 5 digitos
 - Expiracao em 5 minutos
 - 3 tentativas por codigo
 - Reenvio reutiliza o mesmo codigo enquanto ele ainda estiver valido
