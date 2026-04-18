@@ -50,10 +50,10 @@ GOOGLE_CLIENT_SECRET=seu-client-secret
 FRONTEND_URL=http://localhost:3000
 ```
 
-No Google Cloud Console, configure o URI de redirecionamento autorizado exatamente como:
+No Google Cloud Console, configure o URI de redirecionamento autorizado com o mesmo host do `BETTER_AUTH_URL`:
 
 ```text
-http://localhost:3000/api/auth/callback/google
+http://SEU_HOST:3000/api/auth/callback/google
 ```
 
 Para iniciar o login social:
@@ -161,10 +161,19 @@ bun add @better-auth/expo
 
 ### Variaveis de ambiente
 
-Adicione o esquema do app Expo para trusted origins:
+Para login social no mobile, o backend nao pode usar `localhost` como `BETTER_AUTH_URL`.
+Use um host acessivel pelo celular (IP da rede local ou tunel HTTPS).
 
 ```env
-EXPO_SCHEME=consig
+BETTER_AUTH_URL=http://192.168.1.21:3000
+FRONTEND_URL=http://localhost:5173
+EXPO_SCHEME=meudesafio2
 ```
 
-No app Expo, o `scheme` do `app.json` deve ser o mesmo valor.
+No app Expo, o `scheme` do `app.json` deve ser o mesmo valor de `EXPO_SCHEME`.
+
+No Google Cloud Console, configure o URI de redirecionamento autorizado exatamente como:
+
+```text
+http://192.168.1.21:3000/api/auth/callback/google
+```

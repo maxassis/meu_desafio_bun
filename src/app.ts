@@ -4,6 +4,7 @@ import { Elysia } from "elysia";
 
 import { authPlugin } from "./features/auth/auth.plugin";
 import { helloRoutes } from "./features/hello/hello.route";
+import { desafioRoutes } from "./features/desafio/desafio.route";
 import { authOpenAPI } from "./lib/auth";
 import { env } from "./shared/config/env";
 
@@ -37,4 +38,5 @@ export const app = new Elysia()
     }),
   )
   .use(authPlugin)
-  .use(helloRoutes);
+  .use(helloRoutes)
+  .use(desafioRoutes);

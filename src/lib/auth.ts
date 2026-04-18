@@ -15,9 +15,24 @@ import { prisma } from "../shared/db/prisma";
 
 const emailVerificationOtpExpiresInSeconds = 300;
 
+const expoTrustedOrigins = env.expoScheme
+  ? [
+      `${env.expoScheme}://`,
+      `${env.expoScheme}://*`,
+      `${env.expoScheme}://**`,
+    ]
+  : [];
+
+const devOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
+];
+
 const trustedOrigins = Array.from(
   new Set(
-    [env.frontendUrl, env.expoScheme ? `${env.expoScheme}://` : undefined].filter(
+    [env.frontendUrl, env.betterAuthUrl, ...devOrigins, ...expoTrustedOrigins].filter(
       (origin): origin is string => Boolean(origin),
     ),
   ),

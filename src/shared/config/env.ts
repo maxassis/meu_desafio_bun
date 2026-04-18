@@ -20,7 +20,9 @@ function getRequiredEnv(
   return value;
 }
 
-function getOptionalEnvFromList(name: "FRONTEND_URL" | "EXPO_SCHEME") {
+function getOptionalEnvFromList(
+  name: "FRONTEND_URL" | "EXPO_SCHEME" | "R2_ACCOUNT_ID" | "R2_ACCESS_KEY_ID" | "R2_SECRET_ACCESS_KEY" | "R2_PUBLIC_URL_DESAFIOS",
+) {
   return process.env[name];
 }
 
@@ -37,4 +39,8 @@ export const env = {
   emailUser: getRequiredEnv("EMAIL_USER"),
   emailPass: getRequiredEnv("EMAIL_PASS"),
   emailFrom: getRequiredEnv("EMAIL_FROM"),
+  r2AccountId: getOptionalEnvFromList("R2_ACCOUNT_ID"),
+  r2AccessKeyId: getOptionalEnvFromList("R2_ACCESS_KEY_ID"),
+  r2SecretAccessKey: getOptionalEnvFromList("R2_SECRET_ACCESS_KEY"),
+  r2PublicUrlDesafios: getOptionalEnvFromList("R2_PUBLIC_URL_DESAFIOS"),
 };

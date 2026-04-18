@@ -11,6 +11,7 @@
     "prisma:migrate": "prisma migrate dev --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1032.0",
     "@better-auth/expo": "^1.6.5",
     "@better-auth/prisma-adapter": "^1.6.5",
     "@elysiajs/cors": "^1.4.1",
@@ -25,7 +26,8 @@
     "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
