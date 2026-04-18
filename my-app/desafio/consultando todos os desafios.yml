@@ -1,11 +1,11 @@
 info:
-  name: consultando  um desafio
+  name: consultando todos os desafios
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: GET
-  url: http://localhost:3000/desafio/cmo4u80cj0000i6yb1r3xvo5x
+  url: http://localhost:3000/desafio/get-all-desafio
   headers:
     - name: Origin
       value: http://localhost:5173

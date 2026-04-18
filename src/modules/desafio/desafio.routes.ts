@@ -1,12 +1,27 @@
 import { Elysia, t } from "elysia";
-import { createProtectedRoutes } from "../auth/auth.middleware";
+import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
 import { createDesafio } from "./services/create.service";
+import { getAllDesafio } from "./services/get-all.service";
 import { getDesafio } from "./services/get.service";
 import { CreateDesafioSchema } from "./schema/create.schema";
 import { GetDesafioParamsSchema } from "./schema/get.schema";
 
 export const desafioRoutes = new Elysia({ prefix: "/desafio" })
   .use(createProtectedRoutes("desafio-auth-guard"))
+  .get(
+    "/get-all-desafio",
+    async ({ request }) => {
+      const session = await resolveSession(request);
+
+      return getAllDesafio(session!.user.id);
+    },
+    {
+      detail: {
+        tags: ["Desafio"],
+        summary: "Listar desafios do usuario",
+      },
+    },
+  )
   .post(
     "/create",
     async ({ body }) => {
