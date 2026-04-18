@@ -1,58 +1,65 @@
-function getRequiredEnv(
-  name:
-    | "BETTER_AUTH_SECRET"
-    | "BETTER_AUTH_URL"
-    | "DATABASE_URL"
-    | "GOOGLE_CLIENT_ID"
-    | "GOOGLE_CLIENT_SECRET"
-    | "EMAIL_HOST"
-    | "EMAIL_PORT"
-    | "EMAIL_USER"
-    | "EMAIL_PASS"
-    | "EMAIL_FROM",
-) {
-  const value = process.env[name];
+import { z } from "zod";
 
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
+const requiredString = (name: string) =>
+  z.string().trim().min(1, `${name} is required`);
 
-  return value;
-}
+const envSchema = z.object({
+  BETTER_AUTH_SECRET: requiredString("BETTER_AUTH_SECRET"),
+  BETTER_AUTH_URL: z.url({ error: "BETTER_AUTH_URL must be a valid URL" }),
+  DATABASE_URL: requiredString("DATABASE_URL"),
+  GOOGLE_CLIENT_ID: requiredString("GOOGLE_CLIENT_ID"),
+  GOOGLE_CLIENT_SECRET: requiredString("GOOGLE_CLIENT_SECRET"),
+  FRONTEND_URL: z.url({ error: "FRONTEND_URL must be a valid URL" }),
+  EXPO_SCHEME: requiredString("EXPO_SCHEME"),
+  EMAIL_HOST: requiredString("EMAIL_HOST"),
+  EMAIL_PORT: z.coerce
+    .number({ error: "EMAIL_PORT must be a valid number" })
+    .int("EMAIL_PORT must be an integer")
+    .positive("EMAIL_PORT must be greater than zero"),
+  EMAIL_USER: requiredString("EMAIL_USER"),
+  EMAIL_PASS: requiredString("EMAIL_PASS"),
+  EMAIL_FROM: requiredString("EMAIL_FROM"),
+  R2_ACCOUNT_ID: requiredString("R2_ACCOUNT_ID"),
+  R2_ACCESS_KEY_ID: requiredString("R2_ACCESS_KEY_ID"),
+  R2_SECRET_ACCESS_KEY: requiredString("R2_SECRET_ACCESS_KEY"),
+  R2_PUBLIC_URL_DESAFIOS: z.url({ error: "R2_PUBLIC_URL_DESAFIOS must be a valid URL" }),
+  REDIS_HOST: requiredString("REDIS_HOST"),
+  REDIS_PORT: z.coerce
+    .number({ error: "REDIS_PORT must be a valid number" })
+    .int("REDIS_PORT must be an integer")
+    .positive("REDIS_PORT must be greater than zero"),
+  REDIS_PASSWORD: z.string().optional(),
+});
 
-function getOptionalEnvFromList(
-  name:
-    | "FRONTEND_URL"
-    | "EXPO_SCHEME"
-    | "R2_ACCOUNT_ID"
-    | "R2_ACCESS_KEY_ID"
-    | "R2_SECRET_ACCESS_KEY"
-    | "R2_PUBLIC_URL_DESAFIOS"
-    | "REDIS_HOST"
-    | "REDIS_PASSWORD"
-    | "REDIS_PORT",
-) {
-  return process.env[name];
+const parsedEnv = envSchema.safeParse(process.env);
+
+if (!parsedEnv.success) {
+  const issues = parsedEnv.error.issues.map((issue) => {
+    const path = issue.path.join(".") || "env";
+    return `- ${path}: ${issue.message}`;
+  });
+
+  throw new Error(`Invalid environment variables:\n${issues.join("\n")}`);
 }
 
 export const env = {
-  betterAuthSecret: getRequiredEnv("BETTER_AUTH_SECRET"),
-  betterAuthUrl: getRequiredEnv("BETTER_AUTH_URL"),
-  databaseUrl: getRequiredEnv("DATABASE_URL"),
-  googleClientId: getRequiredEnv("GOOGLE_CLIENT_ID"),
-  googleClientSecret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
-  frontendUrl: getOptionalEnvFromList("FRONTEND_URL"),
-  expoScheme: getOptionalEnvFromList("EXPO_SCHEME"),
-  emailHost: getRequiredEnv("EMAIL_HOST"),
-  emailPort: Number(getRequiredEnv("EMAIL_PORT")),
-  emailUser: getRequiredEnv("EMAIL_USER"),
-  emailPass: getRequiredEnv("EMAIL_PASS"),
-  emailFrom: getRequiredEnv("EMAIL_FROM"),
-  r2AccountId: getOptionalEnvFromList("R2_ACCOUNT_ID"),
-  r2AccessKeyId: getOptionalEnvFromList("R2_ACCESS_KEY_ID"),
-  r2SecretAccessKey: getOptionalEnvFromList("R2_SECRET_ACCESS_KEY"),
-  r2PublicUrlDesafios: getOptionalEnvFromList("R2_PUBLIC_URL_DESAFIOS"),
-  redisHost: getOptionalEnvFromList("REDIS_HOST"),
-  redisPassword: getOptionalEnvFromList("REDIS_PASSWORD"),
-  redisPort: getOptionalEnvFromList("REDIS_PORT"),
+  betterAuthSecret: parsedEnv.data.BETTER_AUTH_SECRET,
+  betterAuthUrl: parsedEnv.data.BETTER_AUTH_URL,
+  databaseUrl: parsedEnv.data.DATABASE_URL,
+  googleClientId: parsedEnv.data.GOOGLE_CLIENT_ID,
+  googleClientSecret: parsedEnv.data.GOOGLE_CLIENT_SECRET,
+  frontendUrl: parsedEnv.data.FRONTEND_URL,
+  expoScheme: parsedEnv.data.EXPO_SCHEME,
+  emailHost: parsedEnv.data.EMAIL_HOST,
+  emailPort: parsedEnv.data.EMAIL_PORT,
+  emailUser: parsedEnv.data.EMAIL_USER,
+  emailPass: parsedEnv.data.EMAIL_PASS,
+  emailFrom: parsedEnv.data.EMAIL_FROM,
+  r2AccountId: parsedEnv.data.R2_ACCOUNT_ID,
+  r2AccessKeyId: parsedEnv.data.R2_ACCESS_KEY_ID,
+  r2SecretAccessKey: parsedEnv.data.R2_SECRET_ACCESS_KEY,
+  r2PublicUrlDesafios: parsedEnv.data.R2_PUBLIC_URL_DESAFIOS,
+  redisHost: parsedEnv.data.REDIS_HOST,
+  redisPassword: parsedEnv.data.REDIS_PASSWORD,
+  redisPort: parsedEnv.data.REDIS_PORT,
 };
