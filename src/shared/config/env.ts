@@ -20,7 +20,7 @@ function getRequiredEnv(
   return value;
 }
 
-function getOptionalEnv(name: "FRONTEND_URL") {
+function getOptionalEnvFromList(name: "FRONTEND_URL" | "EXPO_SCHEME") {
   return process.env[name];
 }
 
@@ -30,7 +30,8 @@ export const env = {
   databaseUrl: getRequiredEnv("DATABASE_URL"),
   googleClientId: getRequiredEnv("GOOGLE_CLIENT_ID"),
   googleClientSecret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
-  frontendUrl: getOptionalEnv("FRONTEND_URL"),
+  frontendUrl: getOptionalEnvFromList("FRONTEND_URL"),
+  expoScheme: getOptionalEnvFromList("EXPO_SCHEME"),
   emailHost: getRequiredEnv("EMAIL_HOST"),
   emailPort: Number(getRequiredEnv("EMAIL_PORT")),
   emailUser: getRequiredEnv("EMAIL_USER"),

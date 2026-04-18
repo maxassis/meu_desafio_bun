@@ -1,3 +1,4 @@
+import { expo } from "@better-auth/expo";
 import { prismaAdapter } from "@better-auth/prisma-adapter";
 import { render, toPlainText } from "@react-email/render";
 import { betterAuth } from "better-auth";
@@ -14,10 +15,18 @@ import { prisma } from "../shared/db/prisma";
 
 const emailVerificationOtpExpiresInSeconds = 300;
 
+const trustedOrigins = Array.from(
+  new Set(
+    [env.frontendUrl, env.expoScheme ? `${env.expoScheme}://` : undefined].filter(
+      (origin): origin is string => Boolean(origin),
+    ),
+  ),
+);
+
 export const auth = betterAuth({
   secret: env.betterAuthSecret,
   baseURL: env.betterAuthUrl,
-  trustedOrigins: env.frontendUrl ? [env.frontendUrl] : undefined,
+  trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -50,6 +59,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
   },
   plugins: [
+    expo(),
     bearer({ requireSignature: true }),
     jwt(),
     openAPI(),

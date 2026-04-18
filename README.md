@@ -148,3 +148,23 @@ curl http://localhost:3000/api/auth/get-session \
 - Expiracao em 5 minutos
 - 3 tentativas por codigo
 - Reenvio reutiliza o mesmo codigo enquanto ele ainda estiver valido
+
+## Integracao com Expo
+
+O backend ja esta configurado com o plugin `@better-auth/expo` no Better Auth.
+
+### Dependencia
+
+```bash
+bun add @better-auth/expo
+```
+
+### Variaveis de ambiente
+
+Adicione o esquema do app Expo para trusted origins:
+
+```env
+EXPO_SCHEME=consig
+```
+
+No app Expo, o `scheme` do `app.json` deve ser o mesmo valor.
