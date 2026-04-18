@@ -1,12 +1,16 @@
 import { Elysia, t } from "elysia";
-import { createDesafio, getDesafio } from "./desafio.service";
+import { createProtectedRoutes } from "../auth/auth.middleware";
+import { createDesafio } from "./services/create.service";
+import { getDesafio } from "./services/get.service";
 import { CreateDesafioSchema } from "./schema/create.schema";
 import { GetDesafioParamsSchema } from "./schema/get.schema";
 
 export const desafioRoutes = new Elysia({ prefix: "/desafio" })
+  .use(createProtectedRoutes("desafio-auth-guard"))
   .post(
     "/create",
     async ({ body }) => {
+
       const bodyAny = body as unknown as {
         name: unknown;
         location: unknown;
@@ -32,9 +36,6 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
           ? [bodyAny.images]
           : [];
 
-      console.log("[desafio/create] files from body:", files);
-      console.log("[desafio/create] files length:", files.length);
-
       const result = await createDesafio(
         {
           name: parsed.name,
@@ -51,11 +52,16 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
     },
     {
       body: t.Files(),
+      detail: {
+        tags: ["Desafio"],
+        summary: "Criar desafio",
+      },
     },
   )
   .get(
     "/:id",
-    async ({ params, set }) => {
+    async ({ params }) => {
+
       const { id } = GetDesafioParamsSchema.parse(params);
 
       try {
@@ -63,8 +69,10 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
         return resultado;
       } catch (error) {
         if (error instanceof Error && error.message.includes("not found")) {
-          set.status = 404;
-          return { message: error.message };
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
         }
         throw error;
       }
@@ -73,5 +81,9 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
       params: t.Object({
         id: t.String(),
       }),
+      detail: {
+        tags: ["Desafio"],
+        summary: "Buscar desafio por id",
+      },
     },
   );

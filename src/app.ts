@@ -31,7 +31,10 @@ export const app = new Elysia()
           title: "Meu Desafio Bun API",
           version: "1.0.50",
         },
-        tags: [{ name: "Better Auth", description: "Rotas nativas do Better Auth" }],
+        tags: [
+          { name: "Better Auth", description: "Rotas nativas do Better Auth" },
+          { name: "Desafio", description: "Operacoes do desafio" },
+        ],
         components: (await authOpenAPI.components) as any,
         paths: (await authOpenAPI.getPaths("/api/auth")) as any,
       },
