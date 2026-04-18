@@ -2,9 +2,9 @@ import { openapi } from "@elysiajs/openapi";
 import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
-import { authPlugin } from "./features/auth/auth.plugin";
-import { helloRoutes } from "./features/hello/hello.route";
-import { desafioRoutes } from "./features/desafio/desafio.route";
+import { authPlugin } from "./modules/auth/auth.plugin";
+import { helloRoutes } from "./modules/hello/hello.route";
+import { desafioRoutes } from "./modules/desafio/desafio.routes";
 import { authOpenAPI } from "./lib/auth";
 import { env } from "./shared/config/env";
 

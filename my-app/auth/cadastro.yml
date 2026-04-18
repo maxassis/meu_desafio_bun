@@ -8,7 +8,7 @@ http:
   url: http://localhost:3000/api/auth/sign-up/email
   headers:
     - name: Origin
-      value: http://localhost:3000
+      value: http://localhost:5173
   body:
     type: json
     data: |-

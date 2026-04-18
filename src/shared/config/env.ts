@@ -21,7 +21,16 @@ function getRequiredEnv(
 }
 
 function getOptionalEnvFromList(
-  name: "FRONTEND_URL" | "EXPO_SCHEME" | "R2_ACCOUNT_ID" | "R2_ACCESS_KEY_ID" | "R2_SECRET_ACCESS_KEY" | "R2_PUBLIC_URL_DESAFIOS",
+  name:
+    | "FRONTEND_URL"
+    | "EXPO_SCHEME"
+    | "R2_ACCOUNT_ID"
+    | "R2_ACCESS_KEY_ID"
+    | "R2_SECRET_ACCESS_KEY"
+    | "R2_PUBLIC_URL_DESAFIOS"
+    | "REDIS_HOST"
+    | "REDIS_PASSWORD"
+    | "REDIS_PORT",
 ) {
   return process.env[name];
 }
@@ -43,4 +52,7 @@ export const env = {
   r2AccessKeyId: getOptionalEnvFromList("R2_ACCESS_KEY_ID"),
   r2SecretAccessKey: getOptionalEnvFromList("R2_SECRET_ACCESS_KEY"),
   r2PublicUrlDesafios: getOptionalEnvFromList("R2_PUBLIC_URL_DESAFIOS"),
+  redisHost: getOptionalEnvFromList("REDIS_HOST"),
+  redisPassword: getOptionalEnvFromList("REDIS_PASSWORD"),
+  redisPort: getOptionalEnvFromList("REDIS_PORT"),
 };

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const RoutePointSchema = z.object({
+export const DesafioRoutePointSchema = z.object({
   latitude: z.coerce.number(),
   longitude: z.coerce.number(),
 });
@@ -22,7 +22,7 @@ export const CreateDesafioSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   location: z.union([
     z.string().min(1, "Localização é obrigatória"),
-    z.array(RoutePointSchema).min(1, "Localização é obrigatória"),
+    z.array(DesafioRoutePointSchema).min(1, "Localização é obrigatória"),
   ]),
   distance: z.string().min(1, "Distância é obrigatória"),
   priceId: z.string().min(1, "PriceId é obrigatório"),
