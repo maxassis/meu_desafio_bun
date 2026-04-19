@@ -1,11 +1,7 @@
 import { Elysia, t } from "elysia";
 import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
-import { createDesafio } from "./services/create.service";
-import { getAllDesafio } from "./services/get-all.service";
-import { getPurchaseData } from "./services/get-purchase-data.service";
-import { getDesafio } from "./services/get.service";
-import { CreateDesafioSchema } from "./schema/create.schema";
-import { GetDesafioParamsSchema } from "./schema/get.schema";
+import { createDesafio, getDesafio, getAllDesafio, getPurchaseData } from "./services";
+import { CreateDesafioSchema, GetDesafioParamsSchema } from "./schema";
 
 export const desafioRoutes = new Elysia({ prefix: "/desafio" })
   .use(createProtectedRoutes("desafio-auth-guard"))

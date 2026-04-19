@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 
 import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
-import { getUserData } from "./services/get-user-data.service";
+import { getUserData } from "./services";
 
 export const usersRoutes = new Elysia({ prefix: "/users" })
   .use(createProtectedRoutes("users-auth-guard"))
