@@ -5,6 +5,7 @@ import { Elysia } from "elysia";
 import { authPlugin } from "./modules/auth/auth.plugin";
 import { helloRoutes } from "./modules/hello/hello.route";
 import { desafioRoutes } from "./modules/desafio/desafio.routes";
+import { usersRoutes } from "./modules/users/users.routes";
 import { authOpenAPI } from "./lib/auth";
 import { env } from "./shared/config/env";
 
@@ -34,6 +35,7 @@ export const app = new Elysia()
         tags: [
           { name: "Better Auth", description: "Rotas nativas do Better Auth" },
           { name: "Desafio", description: "Operacoes do desafio" },
+          { name: "Users", description: "Operacoes de usuario" },
         ],
         components: (await authOpenAPI.components) as any,
         paths: (await authOpenAPI.getPaths("/api/auth")) as any,
@@ -42,4 +44,5 @@ export const app = new Elysia()
   )
   .use(authPlugin)
   .use(helloRoutes)
-  .use(desafioRoutes);
+  .use(desafioRoutes)
+  .use(usersRoutes);
