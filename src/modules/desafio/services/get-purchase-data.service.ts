@@ -17,7 +17,7 @@ export async function getPurchaseData(desafioId: string) {
   });
 
   if (!desafio) {
-    throw new Error("Desafio not found");
+    throw new Error("Challenge not found");
   }
 
   await cacheService.set(cacheKey, desafio.purchaseData, CACHE_TTL_SECONDS);

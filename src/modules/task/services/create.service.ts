@@ -19,11 +19,11 @@ export async function createTask(input: CreateTaskInput, userId: string) {
   });
 
   if (!userInscription) {
-    throw new Error("Usuario nao esta cadastrado no desafio");
+    throw new Error("User is not registered for this challenge");
   }
 
   if (userInscription.completed) {
-    throw new Error("Este desafio ja foi concluido. Nao e possivel adicionar novas tarefas.");
+    throw new Error("This challenge is already completed. You cannot add more tasks.");
   }
 
   return prisma.$transaction(async (tx) => {
@@ -77,7 +77,7 @@ export async function createTask(input: CreateTaskInput, userId: string) {
     ]);
 
     return {
-      message: "Tarefa criada com sucesso",
+      message: "Task created successfully",
       task,
     };
   });

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const GetDesafioParamsSchema = z.object({
-  id: z.string().min(1, "ID do desafio é obrigatório"),
+  id: z.string().min(1, "Challenge ID is required"),
 });
 
 export type GetDesafioParams = z.infer<typeof GetDesafioParamsSchema>;

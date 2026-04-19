@@ -1,7 +1,10 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
+import { ZodError } from "zod";
+
 import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
+import { zodErrorResponse } from "../../shared/zod-error-response";
 import { createDesafio, getDesafio, getAllDesafio, getPurchaseData } from "./services";
-import { CreateDesafioSchema, GetDesafioParamsSchema } from "./schema";
+import { CreateDesafioMultipartSchema, CreateDesafioSchema, GetDesafioParamsSchema } from "./schema";
 
 export const desafioRoutes = new Elysia({ prefix: "/desafio" })
   .use(createProtectedRoutes("desafio-auth-guard"))
@@ -15,71 +18,70 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
     {
       detail: {
         tags: ["Desafio"],
-        summary: "Listar desafios do usuario",
+        summary: "List user challenges",
       },
     },
   )
   .post(
     "/create",
     async ({ body }) => {
+      try {
+        const parsedMultipartBody = CreateDesafioMultipartSchema.parse(body);
+        const parsed = CreateDesafioSchema.parse({
+          name: parsedMultipartBody.name,
+          location: parsedMultipartBody.location,
+          distance: parsedMultipartBody.distance,
+          active: parsedMultipartBody.active,
+          priceId: parsedMultipartBody.priceId,
+          purchaseData: parsedMultipartBody.purchaseData,
+        });
 
-      const bodyAny = body as unknown as {
-        name: unknown;
-        location: unknown;
-        distance: unknown;
-        active: unknown;
-        priceId: unknown;
-        purchaseData: unknown;
-        images?: unknown;
-      };
+        const files = Array.isArray(parsedMultipartBody.images)
+          ? parsedMultipartBody.images
+          : parsedMultipartBody.images
+            ? [parsedMultipartBody.images]
+            : [];
 
-      const parsed = CreateDesafioSchema.parse({
-        name: bodyAny.name,
-        location: bodyAny.location,
-        distance: bodyAny.distance,
-        active: bodyAny.active,
-        priceId: bodyAny.priceId,
-        purchaseData: bodyAny.purchaseData,
-      });
+        const result = await createDesafio(
+          {
+            name: parsed.name,
+            location: parsed.location,
+            distance: parsed.distance,
+            active: parsed.active,
+            priceId: parsed.priceId,
+            purchaseData: parsed.purchaseData,
+          },
+          files,
+        );
 
-      const files = Array.isArray(bodyAny.images)
-        ? bodyAny.images
-        : bodyAny.images
-          ? [bodyAny.images]
-          : [];
+        return result;
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error);
+        }
 
-      const result = await createDesafio(
-        {
-          name: parsed.name,
-          location: parsed.location,
-          distance: parsed.distance,
-          active: parsed.active,
-          priceId: parsed.priceId,
-          purchaseData: parsed.purchaseData,
-        },
-        files,
-      );
-
-      return result;
+        throw error;
+      }
     },
     {
-      body: t.Files(),
       detail: {
         tags: ["Desafio"],
-        summary: "Criar desafio",
+        summary: "Create challenge",
       },
     },
   )
   .get(
     "/:id",
     async ({ params }) => {
-
-      const { id } = GetDesafioParamsSchema.parse(params);
-
       try {
+        const { id } = GetDesafioParamsSchema.parse(params);
         const resultado = await getDesafio(id);
         return resultado;
       } catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error);
+        }
+
         if (error instanceof Error && error.message.includes("not found")) {
           return new Response(JSON.stringify({ message: error.message }), {
             status: 404,
@@ -90,24 +92,24 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
       }
     },
     {
-      params: t.Object({
-        id: t.String(),
-      }),
       detail: {
         tags: ["Desafio"],
-        summary: "Buscar desafio por id",
+        summary: "Get challenge by ID",
       },
     },
   )
   .get(
     "/purchase-data/:id",
     async ({ params }) => {
-      const { id } = GetDesafioParamsSchema.parse(params);
-
       try {
+        const { id } = GetDesafioParamsSchema.parse(params);
         return await getPurchaseData(id);
       } catch (error) {
-        if (error instanceof Error && error.message.includes("nao encontrado")) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error);
+        }
+
+        if (error instanceof Error && error.message.includes("not found")) {
           return new Response(JSON.stringify({ message: error.message }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
@@ -118,12 +120,9 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
       }
     },
     {
-      params: t.Object({
-        id: t.String(),
-      }),
       detail: {
         tags: ["Desafio"],
-        summary: "Buscar dados de compra do desafio",
+        summary: "Get challenge purchase data",
       },
     },
   );

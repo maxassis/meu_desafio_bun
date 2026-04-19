@@ -57,8 +57,8 @@ export async function createDesafio(
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        if (errorMessage.includes("R2 não configurado")) {
-          throw new Error("Upload não disponível: R2 não configurado no servidor");
+        if (errorMessage.includes("R2 not configured")) {
+          throw new Error("Upload is unavailable: R2 is not configured on the server");
         }
 
         console.error("Error processing file:", file.name, error);
@@ -98,7 +98,7 @@ export async function createDesafio(
     });
 
     return {
-      message: "Desafio created successfully",
+      message: "Challenge created successfully",
       id: result.id,
       imagesUploaded: imageUrls.length,
       mainPhoto,

@@ -1,34 +1,44 @@
 import { z } from "zod";
 
+export const CreateDesafioMultipartSchema = z.object({
+  name: z.unknown(),
+  location: z.unknown(),
+  distance: z.unknown(),
+  active: z.unknown(),
+  priceId: z.unknown(),
+  purchaseData: z.unknown(),
+  images: z.unknown().optional(),
+});
+
 export const DesafioRoutePointSchema = z.object({
   latitude: z.coerce.number(),
   longitude: z.coerce.number(),
 });
 
 export const PurchaseDataSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  price: z.string().min(1, "Preço é obrigatório"),
-  priceId: z.string().min(1, "PriceId é obrigatório"),
-  rules: z.array(z.string()).min(1, "Pelo menos uma regra é obrigatória"),
-  benefits: z.array(z.string()).min(1, "Pelo menos um benefício é obrigatório"),
-  description: z.string().min(1, "Descrição é obrigatória"),
-  shortDescription: z.string().min(1, "Descrição curta é obrigatória"),
-  howParticipate: z.string().min(1, "Como participar é obrigatório"),
+  name: z.string().min(1, "Name is required"),
+  price: z.string().min(1, "Price is required"),
+  priceId: z.string().min(1, "Price ID is required"),
+  rules: z.array(z.string()).min(1, "At least one rule is required"),
+  benefits: z.array(z.string()).min(1, "At least one benefit is required"),
+  description: z.string().min(1, "Description is required"),
+  shortDescription: z.string().min(1, "Short description is required"),
+  howParticipate: z.string().min(1, "Participation instructions are required"),
 });
 
 export type PurchaseData = z.infer<typeof PurchaseDataSchema>;
 
 export const CreateDesafioSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z.string().min(1, "Name is required"),
   location: z.union([
-    z.string().min(1, "Localização é obrigatória"),
-    z.array(DesafioRoutePointSchema).min(1, "Localização é obrigatória"),
+    z.string().min(1, "Location is required"),
+    z.array(DesafioRoutePointSchema).min(1, "Location is required"),
   ]),
-  distance: z.string().min(1, "Distância é obrigatória"),
-  priceId: z.string().min(1, "PriceId é obrigatório"),
+  distance: z.string().min(1, "Distance is required"),
+  priceId: z.string().min(1, "Price ID is required"),
   active: z.coerce.boolean(),
   purchaseData: z.union([
-    z.string().min(1, "PurchaseData é obrigatória"),
+    z.string().min(1, "Purchase data is required"),
     PurchaseDataSchema,
   ]),
   images: z.unknown().optional(),

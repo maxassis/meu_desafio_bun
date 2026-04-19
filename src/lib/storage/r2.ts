@@ -15,7 +15,7 @@ class CloudflareR2Service {
   private initialize() {
     if (!env.r2AccountId || !env.r2AccessKeyId || !env.r2SecretAccessKey) {
       throw new Error(
-        "R2 não configurado. Defina R2_ACCOUNT_ID, R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY",
+        "R2 not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY",
       );
     }
 
@@ -56,12 +56,12 @@ class CloudflareR2Service {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      console.error("Erro ao fazer upload no R2:", {
+      console.error("Error uploading to R2:", {
         key,
         bucket,
         error: errorMessage,
       });
-      throw new Error(`Falha ao fazer upload: ${errorMessage}`);
+      throw new Error(`Upload failed: ${errorMessage}`);
     }
   }
 
@@ -78,12 +78,12 @@ class CloudflareR2Service {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      console.error("Erro ao deletar arquivo do R2:", {
+      console.error("Error deleting file from R2:", {
         key,
         bucket,
         error: errorMessage,
       });
-      throw new Error(`Falha ao deletar arquivo: ${errorMessage}`);
+      throw new Error(`Failed to delete file: ${errorMessage}`);
     }
   }
 

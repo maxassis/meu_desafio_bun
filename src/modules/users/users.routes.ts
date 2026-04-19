@@ -1,6 +1,9 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
+import { ZodError } from "zod";
 
 import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
+import { zodErrorResponse } from "../../shared/zod-error-response";
+import { EditUserDataSchema, GetUserProfileParamsSchema } from "./schema";
 import { editUserData, getUserData, getUserProfile } from "./services";
 
 export const usersRoutes = new Elysia({ prefix: "/users" })
@@ -15,7 +18,7 @@ export const usersRoutes = new Elysia({ prefix: "/users" })
     {
       detail: {
         tags: ["Users"],
-        summary: "Buscar dados do usuario autenticado",
+        summary: "Get authenticated user data",
       },
     },
   )
@@ -23,8 +26,14 @@ export const usersRoutes = new Elysia({ prefix: "/users" })
     "/get-user-profile/:id",
     async ({ params }) => {
       try {
-        return await getUserProfile(params.id);
+        const { id } = GetUserProfileParamsSchema.parse(params);
+
+        return await getUserProfile(id);
       } catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error);
+        }
+
         if (error instanceof Error && error.message.includes("User not found")) {
           return new Response(JSON.stringify({ message: error.message }), {
             status: 404,
@@ -36,49 +45,32 @@ export const usersRoutes = new Elysia({ prefix: "/users" })
       }
     },
     {
-      params: t.Object({
-        id: t.String(),
-      }),
       detail: {
         tags: ["Users"],
-        summary: "Buscar perfil de usuario por id",
+        summary: "Get user profile by ID",
       },
     },
   )
   .patch(
     "/edit-user-data",
     async ({ body, request }) => {
-      const session = await resolveSession(request);
+      try {
+        const session = await resolveSession(request);
+        const parsedBody = EditUserDataSchema.parse(body);
 
-      const parsedBody = body as {
-        avatarFilename?: string | null;
-        bio?: string | null;
-        gender?: "homem" | "mulher" | "nao_binario" | "prefiro_nao_responder" | null;
-        sport?: "corrida" | "bicicleta" | null;
-        birthDate?: string | null;
-      };
+        return editUserData(session!.user.id, parsedBody);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error);
+        }
 
-      return editUserData(session!.user.id, parsedBody);
+        throw error;
+      }
     },
     {
-      body: t.Object({
-        avatarFilename: t.Optional(t.Union([t.String(), t.Null()])),
-        bio: t.Optional(t.Union([t.String(), t.Null()])),
-        gender: t.Optional(t.Union([
-          t.Literal("homem"),
-          t.Literal("mulher"),
-          t.Literal("nao_binario"),
-          t.Literal("prefiro_nao_responder"),
-        ])),
-        sport: t.Optional(t.Union([
-          t.Literal("corrida"),
-          t.Literal("bicicleta"),
-        ])),
-        birthDate: t.Optional(t.Union([t.String(), t.Null()])),
-      }),
       detail: {
         tags: ["Users"],
-        summary: "Editar dados do usuario autenticado",
+        summary: "Update authenticated user data",
       },
     },
   );

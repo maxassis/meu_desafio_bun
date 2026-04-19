@@ -77,6 +77,10 @@ Usar para:
 - `query`
 - `response`
 
+Validacao deve usar apenas Zod em schemas separados.
+Nao usar validacao inline na rota com `t.Object`, `t.Union` ou similares do Elysia.
+As rotas devem fazer parse com Zod e delegar a regra de negocio para o `service`.
+
 ### `shared/`
 
 Codigo transversal reutilizavel:
@@ -92,6 +96,8 @@ Codigo transversal reutilizavel:
 - Nomes de arquivos devem seguir o padrao `<feature>.<papel>.ts`
 - Nao colocar regra de negocio direto em rotas
 - Nao acessar banco diretamente da rota
+- Usar apenas Zod para validacao de entrada e saida
+- Manter schemas em arquivos separados e reutilizaveis
 - Nao criar abstracoes genericas sem necessidade real
 - Preferir imports diretos entre arquivos enquanto o projeto for pequeno ou medio
 

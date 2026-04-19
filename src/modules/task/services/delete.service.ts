@@ -10,7 +10,7 @@ export async function deleteTask(userId: string, taskId: number) {
   });
 
   if (!task) {
-    throw new Error("Tarefa não encontrada");
+    throw new Error("Task not found");
   }
 
   const inscriptionId = task.inscriptionId;
@@ -60,6 +60,6 @@ export async function deleteTask(userId: string, taskId: number) {
   }
 
   return {
-    message: "Tarefa deletada com sucesso",
+    message: "Task deleted successfully",
   };
 }
