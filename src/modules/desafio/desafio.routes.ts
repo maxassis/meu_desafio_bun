@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
 import { createDesafio } from "./services/create.service";
 import { getAllDesafio } from "./services/get-all.service";
+import { getPurchaseData } from "./services/get-purchase-data.service";
 import { getDesafio } from "./services/get.service";
 import { CreateDesafioSchema } from "./schema/create.schema";
 import { GetDesafioParamsSchema } from "./schema/get.schema";
@@ -99,6 +100,34 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
       detail: {
         tags: ["Desafio"],
         summary: "Buscar desafio por id",
+      },
+    },
+  )
+  .get(
+    "/purchase-data/:id",
+    async ({ params }) => {
+      const { id } = GetDesafioParamsSchema.parse(params);
+
+      try {
+        return await getPurchaseData(id);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("nao encontrado")) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        throw error;
+      }
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      detail: {
+        tags: ["Desafio"],
+        summary: "Buscar dados de compra do desafio",
       },
     },
   );
