@@ -1,0 +1,23 @@
+info:
+  name: editando os dados do usuario
+  type: http
+  seq: 2
+
+http:
+  method: PATCH
+  url: http://localhost:3000/users/edit-user-data
+  body:
+    type: json
+    data: |-
+      {
+        "full_name" : "oioio",
+        "bio": "22222",
+        "birthDate": "11041983"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
