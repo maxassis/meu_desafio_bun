@@ -1,0 +1,28 @@
+info:
+  name: criando um tarefa
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3000/tasks/create
+  body:
+    type: json
+    data: |-
+      {
+        "name": "primeira task",
+        "calories": 400,
+        "distance": 3,
+        "inscriptionId": 1,
+        "environment": "livre", 
+        "duration": 4,
+        "date": "2024-08-09T14:30:00Z",
+        "local": "São Paulo"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
