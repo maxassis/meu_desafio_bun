@@ -5,12 +5,12 @@ info:
 
 http:
   method: PATCH
-  url: http://localhost:3000/tasks/update-task/40
+  url: http://localhost:3000/tasks/update-task/1
   body:
     type: json
     data: |-
       {
-       "name": "topo do lista9",
+       "name": "task editada",
         "distanceKm": 7,
         "environment": "esteira",
         "date": "2025-08-09T14:30:00Z",

@@ -1,0 +1,26 @@
+info:
+  name: enviar nova senha no reset
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:3000/api/auth/email-otp/reset-password
+  headers:
+    - name: Origin
+      value: http://localhost:3000
+  body:
+    type: json
+    data: |-
+      {
+        "email": "teste@example.com",
+        "otp": "52445",
+        "password": "NovaSenha123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

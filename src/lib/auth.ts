@@ -12,6 +12,10 @@ import {
   EmailVerificationOtpEmail,
   emailVerificationOtpSubject,
 } from './email/templates/email-verification-otp-email'
+import {
+  ResetPasswordOtpEmail,
+  resetPasswordOtpSubject,
+} from './email/templates/reset-password-otp-email'
 
 const emailVerificationOtpExpiresInSeconds = 300
 
@@ -85,7 +89,7 @@ export const auth = betterAuth({
       overrideDefaultEmailVerification: true,
       resendStrategy: 'reuse',
       async sendVerificationOTP({ email, otp, type }) {
-        if (type !== 'email-verification') {
+        if (type !== 'email-verification' && type !== 'forget-password') {
           return
         }
 
@@ -95,16 +99,19 @@ export const auth = betterAuth({
         })
 
         const html = await render(
-          createElement(EmailVerificationOtpEmail, {
-            expiresInMinutes: Math.ceil(emailVerificationOtpExpiresInSeconds / 60),
-            name: user?.name ?? '',
-            otp,
-          }),
+          createElement(
+            type === 'email-verification' ? EmailVerificationOtpEmail : ResetPasswordOtpEmail,
+            {
+              expiresInMinutes: Math.ceil(emailVerificationOtpExpiresInSeconds / 60),
+              name: user?.name ?? 'atleta',
+              otp,
+            },
+          ),
         )
 
         await sendEmail({
           to: email,
-          subject: emailVerificationOtpSubject,
+          subject: type === 'email-verification' ? emailVerificationOtpSubject : resetPasswordOtpSubject,
           text: toPlainText(html),
           html,
         })

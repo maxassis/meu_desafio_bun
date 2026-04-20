@@ -1,0 +1,25 @@
+info:
+  name: verificar o codigo na criação de usuario
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3000/api/auth/email-otp/verify-email
+  headers:
+    - name: Origin
+      value: http://localhost:3000
+  body:
+    type: json
+    data: |-
+      {
+        "email": "teste@example.com",
+        "otp": "08184"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

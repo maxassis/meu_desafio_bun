@@ -1,0 +1,26 @@
+info:
+  name: verificar codigo no reset de senha
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://localhost:3000/api/auth/email-otp/check-verification-otp
+  headers:
+    - name: Origin
+      value: http://localhost:3000
+  body:
+    type: json
+    data: |-
+      {
+        "email": "teste@example.com",
+        "type": "forget-password",
+        "otp": "52445"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
