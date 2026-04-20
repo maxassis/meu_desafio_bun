@@ -1,8 +1,8 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const CreateTaskSchema = z.object({
-  name: z.string().min(1, "Task name is required"),
-  environment: z.string().min(1, "Environment is required"),
+  name: z.string().min(1, 'Task name is required'),
+  environment: z.string().min(1, 'Environment is required'),
   date: z.union([z.string(), z.date()]).optional().nullable(),
   duration: z.coerce.number().nonnegative().default(0),
   calories: z.coerce.number().int().nonnegative().optional(),
@@ -10,6 +10,6 @@ export const CreateTaskSchema = z.object({
   distance: z.coerce.number().nonnegative(),
   inscriptionId: z.coerce.number().int().positive(),
   gpsTask: z.coerce.boolean().optional(),
-});
+})
 
-export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
+export type CreateTaskInput = z.infer<typeof CreateTaskSchema>

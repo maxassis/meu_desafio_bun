@@ -1,32 +1,32 @@
-import { Elysia } from "elysia";
-import { ZodError } from "zod";
+import { Elysia } from 'elysia'
+import { ZodError } from 'zod'
 
-import { createProtectedRoutes, resolveSession } from "../auth/auth.middleware";
-import { zodErrorResponse } from "../../shared/zod-error-response";
-import { createDesafio, getDesafio, getAllDesafio, getPurchaseData } from "./services";
-import { CreateDesafioMultipartSchema, CreateDesafioSchema, GetDesafioParamsSchema } from "./schema";
+import { zodErrorResponse } from '../../shared/zod-error-response'
+import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
+import { CreateDesafioMultipartSchema, CreateDesafioSchema, GetDesafioParamsSchema } from './schema'
+import { createDesafio, getAllDesafio, getDesafio, getPurchaseData } from './services'
 
-export const desafioRoutes = new Elysia({ prefix: "/desafio" })
-  .use(createProtectedRoutes("desafio-auth-guard"))
+export const desafioRoutes = new Elysia({ prefix: '/desafio' })
+  .use(createProtectedRoutes('desafio-auth-guard'))
   .get(
-    "/get-all-desafio",
+    '/get-all-desafio',
     async ({ request }) => {
-      const session = await resolveSession(request);
+      const session = await resolveSession(request)
 
-      return getAllDesafio(session!.user.id);
+      return getAllDesafio(session!.user.id)
     },
     {
       detail: {
-        tags: ["Desafio"],
-        summary: "List user challenges",
+        tags: ['Desafio'],
+        summary: 'List user challenges',
       },
     },
   )
   .post(
-    "/create",
+    '/create',
     async ({ body }) => {
       try {
-        const parsedMultipartBody = CreateDesafioMultipartSchema.parse(body);
+        const parsedMultipartBody = CreateDesafioMultipartSchema.parse(body)
         const parsed = CreateDesafioSchema.parse({
           name: parsedMultipartBody.name,
           location: parsedMultipartBody.location,
@@ -34,13 +34,13 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
           active: parsedMultipartBody.active,
           priceId: parsedMultipartBody.priceId,
           purchaseData: parsedMultipartBody.purchaseData,
-        });
+        })
 
         const files = Array.isArray(parsedMultipartBody.images)
           ? parsedMultipartBody.images
           : parsedMultipartBody.images
             ? [parsedMultipartBody.images]
-            : [];
+            : []
 
         const result = await createDesafio(
           {
@@ -52,77 +52,80 @@ export const desafioRoutes = new Elysia({ prefix: "/desafio" })
             purchaseData: parsed.purchaseData,
           },
           files,
-        );
+        )
 
-        return result;
-      } catch (error) {
+        return result
+      }
+      catch (error) {
         if (error instanceof ZodError) {
-          return zodErrorResponse(error);
+          return zodErrorResponse(error)
         }
 
-        throw error;
+        throw error
       }
     },
     {
       detail: {
-        tags: ["Desafio"],
-        summary: "Create challenge",
+        tags: ['Desafio'],
+        summary: 'Create challenge',
       },
     },
   )
   .get(
-    "/:id",
+    '/:id',
     async ({ params }) => {
       try {
-        const { id } = GetDesafioParamsSchema.parse(params);
-        const resultado = await getDesafio(id);
-        return resultado;
-      } catch (error) {
+        const { id } = GetDesafioParamsSchema.parse(params)
+        const resultado = await getDesafio(id)
+        return resultado
+      }
+      catch (error) {
         if (error instanceof ZodError) {
-          return zodErrorResponse(error);
+          return zodErrorResponse(error)
         }
 
-        if (error instanceof Error && error.message.includes("not found")) {
+        if (error instanceof Error && error.message.includes('not found')) {
           return new Response(JSON.stringify({ message: error.message }), {
             status: 404,
-            headers: { "Content-Type": "application/json" },
-          });
+            headers: { 'Content-Type': 'application/json' },
+          })
         }
-        throw error;
+        throw error
       }
     },
     {
       detail: {
-        tags: ["Desafio"],
-        summary: "Get challenge by ID",
+        tags: ['Desafio'],
+        summary: 'Get challenge by ID',
       },
     },
   )
   .get(
-    "/purchase-data/:id",
+    '/purchase-data/:id',
     async ({ params }) => {
       try {
-        const { id } = GetDesafioParamsSchema.parse(params);
-        return await getPurchaseData(id);
-      } catch (error) {
+        const { id } = GetDesafioParamsSchema.parse(params)
+        return await getPurchaseData(id)
+      }
+      catch (error) {
         if (error instanceof ZodError) {
-          return zodErrorResponse(error);
+          return zodErrorResponse(error)
         }
 
-        if (error instanceof Error && error.message.includes("not found")) {
+        if (error instanceof Error && error.message.includes('not found')) {
           return new Response(JSON.stringify({ message: error.message }), {
             status: 404,
-            headers: { "Content-Type": "application/json" },
-          });
+            headers: { 'Content-Type': 'application/json' },
+          })
         }
 
-        throw error;
+        throw error
       }
     },
     {
       detail: {
-        tags: ["Desafio"],
-        summary: "Get challenge purchase data",
+        tags: ['Desafio'],
+        summary: 'Get challenge purchase data',
       },
     },
-  );
+  )

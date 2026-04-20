@@ -1,53 +1,53 @@
-import { cacheService } from "../../../lib/cache/redis";
-import { prisma } from "../../../shared/db/prisma";
+import { cacheService } from '../../../lib/cache/redis'
+import { prisma } from '../../../shared/db/prisma'
 
-const CACHE_TTL_SECONDS = 300;
+const CACHE_TTL_SECONDS = 300
 
-type UserProfileResponse = {
-  name: string;
-  avatarFilename: string | null;
-  bio: string | null;
-  activeInscriptions: number;
-  completedChallengesCount: number;
+interface UserProfileResponse {
+  name: string
+  avatarFilename: string | null
+  bio: string | null
+  activeInscriptions: number
+  completedChallengesCount: number
   completedChallenges: Array<{
-    id: string;
-    name: string;
-    totalDistance: number;
-    completedAt: Date | null;
-    photo: string;
-  }>;
-  totalDistance: number;
+    id: string
+    name: string
+    totalDistance: number
+    completedAt: Date | null
+    photo: string
+  }>
+  totalDistance: number
   recentTasks: Array<{
-    id: number;
-    name: string;
-    environment: string;
-    date: Date | null;
-    duration: unknown;
-    calories: number | null;
-    local: string | null;
-    distanceKm: unknown;
-    inscriptionId: number;
-    userId: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    gpsTask: boolean | null;
-  }>;
+    id: number
+    name: string
+    environment: string
+    date: Date | null
+    duration: unknown
+    calories: number | null
+    local: string | null
+    distanceKm: unknown
+    inscriptionId: number
+    userId: string | null
+    createdAt: Date
+    updatedAt: Date
+    gpsTask: boolean | null
+  }>
   activeChallenges: Array<{
-    id: string;
-    name: string;
-    totalDistance: number;
-    distanceCovered: number;
-    completionPercentage: number;
-    photo: string;
-  }>;
-};
+    id: string
+    name: string
+    totalDistance: number
+    distanceCovered: number
+    completionPercentage: number
+    photo: string
+  }>
+}
 
 export async function getUserProfile(id: string): Promise<UserProfileResponse> {
-  const cacheKey = `user:profile:${id}`;
+  const cacheKey = `user:profile:${id}`
 
-  const cachedProfile = await cacheService.get<UserProfileResponse>(cacheKey);
+  const cachedProfile = await cacheService.get<UserProfileResponse>(cacheKey)
   if (cachedProfile) {
-    return cachedProfile;
+    return cachedProfile
   }
 
   const userData = await prisma.userData.findUnique({
@@ -59,14 +59,14 @@ export async function getUserProfile(id: string): Promise<UserProfileResponse> {
         select: { name: true },
       },
     },
-  });
+  })
 
   if (!userData) {
-    throw new Error("User not found");
+    throw new Error('User not found')
   }
 
-  const [activeCount, completedCount, allInscriptions, recentTasks, activeInscriptions, completedChallengesList] =
-    await Promise.all([
+  const [activeCount, completedCount, allInscriptions, recentTasks, activeInscriptions, completedChallengesList]
+    = await Promise.all([
       prisma.inscription.count({
         where: { userId: id, completed: false },
       }),
@@ -91,7 +91,7 @@ export async function getUserProfile(id: string): Promise<UserProfileResponse> {
       }),
       prisma.task.findMany({
         where: { userId: id },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         take: 5,
         select: {
           id: true,
@@ -144,33 +144,33 @@ export async function getUserProfile(id: string): Promise<UserProfileResponse> {
             },
           },
         },
-        orderBy: { completedAt: "desc" },
+        orderBy: { completedAt: 'desc' },
       }),
-    ]);
+    ])
 
   const totalDistance = allInscriptions.reduce((sum, inscription) => {
     if (inscription.completed) {
-      return sum + Number(inscription.desafio.distance);
+      return sum + Number(inscription.desafio.distance)
     }
 
     const taskDistance = inscription.tasks.reduce(
       (taskSum, task) => taskSum + Number(task.distanceKm),
       0,
-    );
+    )
 
-    return sum + taskDistance;
-  }, 0);
+    return sum + taskDistance
+  }, 0)
 
   const activeChallenges = activeInscriptions.map((inscription) => {
-    const totalChallengeDistance = Number(inscription.desafio.distance);
+    const totalChallengeDistance = Number(inscription.desafio.distance)
     const distanceCovered = inscription.tasks.reduce(
       (sum, task) => sum + Number(task.distanceKm),
       0,
-    );
+    )
 
     const completionPercentage = totalChallengeDistance > 0
       ? Math.min(Math.round((distanceCovered / totalChallengeDistance) * 100), 100)
-      : 0;
+      : 0
 
     return {
       id: inscription.desafio.id,
@@ -179,16 +179,16 @@ export async function getUserProfile(id: string): Promise<UserProfileResponse> {
       distanceCovered,
       completionPercentage,
       photo: inscription.desafio.photo,
-    };
-  });
+    }
+  })
 
-  const completedChallenges = completedChallengesList.map((inscription) => ({
+  const completedChallenges = completedChallengesList.map(inscription => ({
     id: inscription.desafio.id,
     name: inscription.desafio.name,
     totalDistance: Number(inscription.desafio.distance),
     completedAt: inscription.completedAt,
     photo: inscription.desafio.photo,
-  }));
+  }))
 
   const profile: UserProfileResponse = {
     name: userData.user.name,
@@ -200,9 +200,9 @@ export async function getUserProfile(id: string): Promise<UserProfileResponse> {
     totalDistance,
     recentTasks,
     activeChallenges,
-  };
+  }
 
-  await cacheService.set(cacheKey, profile, CACHE_TTL_SECONDS);
+  await cacheService.set(cacheKey, profile, CACHE_TTL_SECONDS)
 
-  return profile;
+  return profile
 }

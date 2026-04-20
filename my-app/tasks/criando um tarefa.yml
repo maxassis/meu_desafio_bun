@@ -14,7 +14,7 @@ http:
         "calories": 400,
         "distance": 3,
         "inscriptionId": 1,
-        "environment": "livre", 
+        "environment": "livre",
         "duration": 4,
         "date": "2024-08-09T14:30:00Z",
         "local": "São Paulo"

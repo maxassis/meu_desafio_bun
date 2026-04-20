@@ -1,5 +1,5 @@
-import { cacheService } from "../../../lib/cache/redis";
-import { prisma } from "../../../shared/db/prisma";
+import { cacheService } from '../../../lib/cache/redis'
+import { prisma } from '../../../shared/db/prisma'
 
 export async function deleteTask(userId: string, taskId: number) {
   const task = await prisma.task.findFirst({
@@ -7,19 +7,19 @@ export async function deleteTask(userId: string, taskId: number) {
       id: taskId,
       userId,
     },
-  });
+  })
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new Error('Task not found')
   }
 
-  const inscriptionId = task.inscriptionId;
+  const inscriptionId = task.inscriptionId
 
   await prisma.task.delete({
     where: {
       id: taskId,
     },
-  });
+  })
 
   const tasks = await prisma.task.findMany({
     where: {
@@ -29,17 +29,17 @@ export async function deleteTask(userId: string, taskId: number) {
     select: {
       distanceKm: true,
     },
-  });
+  })
 
   const totalDistance = tasks.reduce(
     (sum, currentTask) => sum + Number(currentTask.distanceKm || 0),
     0,
-  );
+  )
 
   await prisma.inscription.update({
     where: { id: inscriptionId },
     data: { progress: totalDistance },
-  });
+  })
 
   const desafio = await prisma.desafio.findFirst({
     where: {
@@ -49,17 +49,17 @@ export async function deleteTask(userId: string, taskId: number) {
         },
       },
     },
-  });
+  })
 
   if (desafio) {
     await Promise.all([
       cacheService.del(`desafio:${desafio.id}`),
       cacheService.del(`user:${userId}:desafios`),
       cacheService.del(`user:${userId}:inscription:${inscriptionId}:tasks`),
-    ]);
+    ])
   }
 
   return {
-    message: "Task deleted successfully",
-  };
+    message: 'Task deleted successfully',
+  }
 }

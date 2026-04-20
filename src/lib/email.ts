@@ -1,13 +1,13 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer'
 
-import { env } from "../shared/config/env";
+import { env } from '../shared/config/env'
 
-type SendEmailInput = {
-  to: string;
-  subject: string;
-  text: string;
-  html?: string;
-};
+interface SendEmailInput {
+  to: string
+  subject: string
+  text: string
+  html?: string
+}
 
 const transporter = nodemailer.createTransport({
   host: env.emailHost,
@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
     user: env.emailUser,
     pass: env.emailPass,
   },
-});
+})
 
 export async function sendEmail({ to, subject, text, html }: SendEmailInput) {
   const info = await transporter.sendMail({
@@ -25,13 +25,13 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput) {
     subject,
     text,
     html,
-  });
+  })
 
-  const previewUrl = nodemailer.getTestMessageUrl(info);
+  const previewUrl = nodemailer.getTestMessageUrl(info)
 
   if (previewUrl) {
-    console.log(`Email preview: ${previewUrl}`);
+    console.log(`Email preview: ${previewUrl}`)
   }
 
-  return info;
+  return info
 }

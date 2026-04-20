@@ -1,10 +1,10 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const GetDesafioParamsSchema = z.object({
-  id: z.string().min(1, "Challenge ID is required"),
-});
+  id: z.string().min(1, 'Challenge ID is required'),
+})
 
-export type GetDesafioParams = z.infer<typeof GetDesafioParamsSchema>;
+export type GetDesafioParams = z.infer<typeof GetDesafioParamsSchema>
 
 export const GetDesafioResponseSchema = z.object({
   id: z.string(),
@@ -26,6 +26,6 @@ export const GetDesafioResponseSchema = z.object({
       lastTaskDate: z.date().nullable(),
     }),
   ),
-});
+})
 
-export type GetDesafioResponse = z.infer<typeof GetDesafioResponseSchema>;
+export type GetDesafioResponse = z.infer<typeof GetDesafioResponseSchema>

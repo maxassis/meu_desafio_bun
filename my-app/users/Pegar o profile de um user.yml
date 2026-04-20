@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: /users/get-user-profile/cmdq23mjp0000i23bkhfed2gv
+  url: http://localhost:3000/users/get-user-profile/eYRSAvTsiNGOWHaFaYsEwO1lXK95WCL9
   auth: inherit
 
 settings:

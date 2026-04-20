@@ -1,19 +1,19 @@
-import { expo } from "@better-auth/expo";
-import { prismaAdapter } from "@better-auth/prisma-adapter";
-import { render, toPlainText } from "@react-email/render";
-import { betterAuth } from "better-auth";
-import { bearer, emailOTP, jwt, openAPI } from "better-auth/plugins";
-import { createElement } from "react";
+import { expo } from '@better-auth/expo'
+import { prismaAdapter } from '@better-auth/prisma-adapter'
+import { render, toPlainText } from '@react-email/render'
+import { betterAuth } from 'better-auth'
+import { bearer, emailOTP, jwt, openAPI } from 'better-auth/plugins'
+import { createElement } from 'react'
 
-import { sendEmail } from "./email";
+import { env } from '../shared/config/env'
+import { prisma } from '../shared/db/prisma'
+import { sendEmail } from './email'
 import {
   EmailVerificationOtpEmail,
   emailVerificationOtpSubject,
-} from "./email/templates/email-verification-otp-email";
-import { env } from "../shared/config/env";
-import { prisma } from "../shared/db/prisma";
+} from './email/templates/email-verification-otp-email'
 
-const emailVerificationOtpExpiresInSeconds = 300;
+const emailVerificationOtpExpiresInSeconds = 300
 
 const expoTrustedOrigins = env.expoScheme
   ? [
@@ -21,14 +21,14 @@ const expoTrustedOrigins = env.expoScheme
       `${env.expoScheme}://*`,
       `${env.expoScheme}://**`,
     ]
-  : [];
+  : []
 
 const devOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5173",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:5173",
-];
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+]
 
 const trustedOrigins = Array.from(
   new Set(
@@ -36,14 +36,14 @@ const trustedOrigins = Array.from(
       (origin): origin is string => Boolean(origin),
     ),
   ),
-);
+)
 
 export const auth = betterAuth({
   secret: env.betterAuthSecret,
   baseURL: env.betterAuthUrl,
   trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
   database: prismaAdapter(prisma, {
-    provider: "postgresql",
+    provider: 'postgresql',
   }),
   databaseHooks: {
     user: {
@@ -53,7 +53,7 @@ export const auth = betterAuth({
             where: { userId: user.id },
             update: {},
             create: { userId: user.id },
-          });
+          })
         },
       },
     },
@@ -83,65 +83,65 @@ export const auth = betterAuth({
       expiresIn: emailVerificationOtpExpiresInSeconds,
       otpLength: 5,
       overrideDefaultEmailVerification: true,
-      resendStrategy: "reuse",
+      resendStrategy: 'reuse',
       async sendVerificationOTP({ email, otp, type }) {
-        if (type !== "email-verification") {
-          return;
+        if (type !== 'email-verification') {
+          return
         }
 
         const user = await prisma.user.findUnique({
           where: { email },
           select: { name: true },
-        });
+        })
 
         const html = await render(
           createElement(EmailVerificationOtpEmail, {
             expiresInMinutes: Math.ceil(emailVerificationOtpExpiresInSeconds / 60),
-            name: user?.name ?? "",
+            name: user?.name ?? '',
             otp,
           }),
-        );
+        )
 
         await sendEmail({
           to: email,
           subject: emailVerificationOtpSubject,
           text: toPlainText(html),
           html,
-        });
+        })
       },
     }),
   ],
-});
+})
 
-let schemaPromise: ReturnType<typeof auth.api.generateOpenAPISchema> | undefined;
+let schemaPromise: ReturnType<typeof auth.api.generateOpenAPISchema> | undefined
 
 function getAuthOpenAPISchema() {
   if (!schemaPromise) {
-    schemaPromise = auth.api.generateOpenAPISchema();
+    schemaPromise = auth.api.generateOpenAPISchema()
   }
 
-  return schemaPromise;
+  return schemaPromise
 }
 
 export const authOpenAPI = {
-  getPaths: async (prefix = "/api/auth") => {
-    const { paths } = await getAuthOpenAPISchema();
-    const reference: Record<string, (typeof paths)[string]> = Object.create(null);
+  getPaths: async (prefix = '/api/auth') => {
+    const { paths } = await getAuthOpenAPISchema()
+    const reference: Record<string, (typeof paths)[string]> = Object.create(null)
 
     for (const path of Object.keys(paths)) {
-      const key = `${prefix}${path}`;
-      reference[key] = paths[path];
+      const key = `${prefix}${path}`
+      reference[key] = paths[path]
 
       for (const method of Object.keys(paths[path])) {
         const operation = reference[key][method as keyof (typeof paths)[string]] as {
-          tags?: string[];
-        };
+          tags?: string[]
+        }
 
-        operation.tags = ["Better Auth"];
+        operation.tags = ['Better Auth']
       }
     }
 
-    return reference;
+    return reference
   },
   components: getAuthOpenAPISchema().then(({ components }) => components) as Promise<any>,
-} as const;
+} as const

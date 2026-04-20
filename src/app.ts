@@ -1,22 +1,22 @@
-import { openapi } from "@elysiajs/openapi";
-import { cors } from "@elysiajs/cors";
-import { Elysia } from "elysia";
+import { cors } from '@elysiajs/cors'
+import { openapi } from '@elysiajs/openapi'
+import { Elysia } from 'elysia'
 
-import { authPlugin } from "./modules/auth/auth.plugin";
-import { helloRoutes } from "./modules/hello/hello.route";
-import { desafioRoutes } from "./modules/desafio/desafio.routes";
-import { usersRoutes } from "./modules/users/users.routes";
-import { taskRoutes } from "./modules/task/task.routes";
-import { authOpenAPI } from "./lib/auth";
-import { env } from "./shared/config/env";
+import { authOpenAPI } from './lib/auth'
+import { authPlugin } from './modules/auth/auth.plugin'
+import { desafioRoutes } from './modules/desafio/desafio.routes'
+import { helloRoutes } from './modules/hello/hello.route'
+import { taskRoutes } from './modules/task/task.routes'
+import { usersRoutes } from './modules/users/users.routes'
+import { env } from './shared/config/env'
 
 const allowedOrigins = Array.from(
   new Set(
-    [env.frontendUrl, env.betterAuthUrl, "http://localhost:5173", "http://127.0.0.1:5173"].filter(
+    [env.frontendUrl, env.betterAuthUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'].filter(
       (origin): origin is string => Boolean(origin),
     ),
   ),
-);
+)
 
 export const app = new Elysia()
   .use(
@@ -27,20 +27,20 @@ export const app = new Elysia()
   )
   .use(
     openapi({
-      path: "/openapi",
+      path: '/openapi',
       documentation: {
         info: {
-          title: "Meu Desafio Bun API",
-          version: "1.0.50",
+          title: 'Meu Desafio Bun API',
+          version: '1.0.50',
         },
         tags: [
-          { name: "Better Auth", description: "Native Better Auth routes" },
-          { name: "Desafio", description: "Challenge operations" },
-          { name: "Users", description: "User operations" },
-          { name: "Tasks", description: "Task operations" },
+          { name: 'Better Auth', description: 'Native Better Auth routes' },
+          { name: 'Desafio', description: 'Challenge operations' },
+          { name: 'Users', description: 'User operations' },
+          { name: 'Tasks', description: 'Task operations' },
         ],
         components: (await authOpenAPI.components) as any,
-        paths: (await authOpenAPI.getPaths("/api/auth")) as any,
+        paths: (await authOpenAPI.getPaths('/api/auth')) as any,
       },
     }),
   )
@@ -48,4 +48,4 @@ export const app = new Elysia()
   .use(helloRoutes)
   .use(desafioRoutes)
   .use(usersRoutes)
-  .use(taskRoutes);
+  .use(taskRoutes)

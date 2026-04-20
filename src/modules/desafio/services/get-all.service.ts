@@ -1,14 +1,14 @@
-import { cacheService } from "../../../lib/cache/redis";
-import { prisma } from "../../../shared/db/prisma";
+import { cacheService } from '../../../lib/cache/redis'
+import { prisma } from '../../../shared/db/prisma'
 
-const CACHE_TTL_SECONDS = 600;
+const CACHE_TTL_SECONDS = 600
 
 export async function getAllDesafio(userId: string) {
-  const cacheKey = `user:${userId}:desafios`;
+  const cacheKey = `user:${userId}:desafios`
 
-  const cachedDesafios = await cacheService.get<unknown[]>(cacheKey);
+  const cachedDesafios = await cacheService.get<unknown[]>(cacheKey)
   if (cachedDesafios) {
-    return cachedDesafios;
+    return cachedDesafios
   }
 
   const desafios = await prisma.desafio.findMany({
@@ -18,7 +18,7 @@ export async function getAllDesafio(userId: string) {
       distance: true,
       photo: true,
     },
-  });
+  })
 
   const inscriptions = await prisma.inscription.findMany({
     where: { userId },
@@ -36,32 +36,32 @@ export async function getAllDesafio(userId: string) {
         },
       },
     },
-  });
+  })
 
   const inscriptionsMap = new Map<
     string,
     {
-      inscriptionId: number;
-      completed: boolean;
-      completedAt: Date | null;
-      progress: number;
-      totalDistanceKm: number;
-      tasksCount: number;
-      totalDuration: number;
+      inscriptionId: number
+      completed: boolean
+      completedAt: Date | null
+      progress: number
+      totalDistanceKm: number
+      tasksCount: number
+      totalDuration: number
     }
-  >();
+  >()
 
   for (const inscription of inscriptions) {
     const totalDistanceKm = inscription.tasks.reduce(
       (sum, task) => sum + Number(task.distanceKm || 0),
       0,
-    );
+    )
 
-    const tasksCount = inscription.tasks.length;
+    const tasksCount = inscription.tasks.length
     const totalDuration = inscription.tasks.reduce(
       (sum, task) => sum + Number(task.duration || 0),
       0,
-    );
+    )
 
     inscriptionsMap.set(inscription.desafioId, {
       inscriptionId: inscription.id,
@@ -71,26 +71,26 @@ export async function getAllDesafio(userId: string) {
       totalDistanceKm,
       tasksCount,
       totalDuration,
-    });
+    })
   }
 
   const desafiosComStatus = desafios.map((desafio) => {
-    const inscription = inscriptionsMap.get(desafio.id);
+    const inscription = inscriptionsMap.get(desafio.id)
 
-    let progressPercentage = 0;
-    let totalDistanceCompleted = 0;
+    let progressPercentage = 0
+    let totalDistanceCompleted = 0
 
     if (inscription) {
-      const challengeDistance = Number(desafio.distance);
+      const challengeDistance = Number(desafio.distance)
 
       totalDistanceCompleted = inscription.completed
         ? challengeDistance
-        : inscription.totalDistanceKm;
+        : inscription.totalDistanceKm
 
-      progressPercentage =
-        challengeDistance > 0
+      progressPercentage
+        = challengeDistance > 0
           ? Math.min(100, (inscription.progress / challengeDistance) * 100)
-          : 0;
+          : 0
     }
 
     return {
@@ -103,10 +103,10 @@ export async function getAllDesafio(userId: string) {
       totalDistanceCompleted,
       tasksCount: inscription?.tasksCount ?? 0,
       totalDuration: inscription?.totalDuration ?? 0,
-    };
-  });
+    }
+  })
 
-  await cacheService.set(cacheKey, desafiosComStatus, CACHE_TTL_SECONDS);
+  await cacheService.set(cacheKey, desafiosComStatus, CACHE_TTL_SECONDS)
 
-  return desafiosComStatus;
+  return desafiosComStatus
 }

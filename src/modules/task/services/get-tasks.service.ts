@@ -1,14 +1,14 @@
-import { cacheService } from "../../../lib/cache/redis";
-import { prisma } from "../../../shared/db/prisma";
+import { cacheService } from '../../../lib/cache/redis'
+import { prisma } from '../../../shared/db/prisma'
 
-const CACHE_TTL_SECONDS = 3600;
+const CACHE_TTL_SECONDS = 3600
 
 export async function getTasks(userId: string, inscriptionId: number) {
-  const cacheKey = `user:${userId}:inscription:${inscriptionId}:tasks`;
+  const cacheKey = `user:${userId}:inscription:${inscriptionId}:tasks`
 
-  const cachedTasks = await cacheService.get<unknown[]>(cacheKey);
+  const cachedTasks = await cacheService.get<unknown[]>(cacheKey)
   if (cachedTasks) {
-    return cachedTasks;
+    return cachedTasks
   }
 
   const tasks = await prisma.task.findMany({
@@ -17,11 +17,11 @@ export async function getTasks(userId: string, inscriptionId: number) {
       inscriptionId,
     },
     orderBy: {
-      updatedAt: "desc",
+      updatedAt: 'desc',
     },
-  });
+  })
 
-  await cacheService.set(cacheKey, tasks, CACHE_TTL_SECONDS);
+  await cacheService.set(cacheKey, tasks, CACHE_TTL_SECONDS)
 
-  return tasks;
+  return tasks
 }

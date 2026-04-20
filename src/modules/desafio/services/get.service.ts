@@ -1,15 +1,15 @@
-import { prisma } from "../../../shared/db/prisma";
-import { cacheService } from "../../../lib/cache/redis";
-import { GetDesafioResponse } from "../schema/get.schema";
+import type { GetDesafioResponse } from '../schema/get.schema'
+import { cacheService } from '../../../lib/cache/redis'
+import { prisma } from '../../../shared/db/prisma'
 
-const CACHE_TTL_SECONDS = 300;
+const CACHE_TTL_SECONDS = 300
 
 export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse> {
-  const cacheKey = `desafio:${idDesafio}`;
+  const cacheKey = `desafio:${idDesafio}`
 
-  const cachedDesafio = await cacheService.get<GetDesafioResponse>(cacheKey);
+  const cachedDesafio = await cacheService.get<GetDesafioResponse>(cacheKey)
   if (cachedDesafio) {
-    return cachedDesafio;
+    return cachedDesafio
   }
 
   const desafio = await prisma.desafio.findUnique({
@@ -28,10 +28,10 @@ export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse>
         },
       },
     },
-  });
+  })
 
   if (!desafio) {
-    throw new Error(`Desafio with ID ${idDesafio} not found`);
+    throw new Error(`Desafio with ID ${idDesafio} not found`)
   }
 
   const inscriptionsWithStats = await Promise.all(
@@ -43,20 +43,20 @@ export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse>
           calories: true,
           distanceKm: true,
         },
-        orderBy: { createdAt: "desc" },
-      });
+        orderBy: { createdAt: 'desc' },
+      })
 
-      const lastTaskDate = tasks.length > 0 ? tasks[0].createdAt : null;
+      const lastTaskDate = tasks.length > 0 ? tasks[0].createdAt : null
 
       const totalCalories = tasks.reduce(
         (sum, task) => sum + (task.calories || 0),
         0,
-      );
+      )
 
       const totalDistanceKm = tasks.reduce(
         (sum, task) => sum + (Number(task.distanceKm) || 0),
         0,
-      );
+      )
 
       return {
         user: {
@@ -69,9 +69,9 @@ export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse>
         totalCalories,
         totalDistanceKm,
         lastTaskDate,
-      };
+      }
     }),
-  );
+  )
 
   const result: GetDesafioResponse = {
     id: desafio.id,
@@ -80,9 +80,9 @@ export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse>
     distance: desafio.distance,
     photo: desafio.photo,
     inscriptions: inscriptionsWithStats,
-  };
+  }
 
-  await cacheService.set(cacheKey, result, CACHE_TTL_SECONDS);
+  await cacheService.set(cacheKey, result, CACHE_TTL_SECONDS)
 
-  return result;
+  return result
 }

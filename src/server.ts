@@ -1,7 +1,7 @@
-import { app } from "./app";
+import { app } from './app'
 
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT ?? 3000)
 
-app.listen(port);
+app.listen(port)
 
-console.log(`Elysia is running at http://localhost:${port}`);
+console.log(`Elysia is running at http://localhost:${port}`)
