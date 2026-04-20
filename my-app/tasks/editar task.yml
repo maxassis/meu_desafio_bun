@@ -1,0 +1,25 @@
+info:
+  name: editar task
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:3000/tasks/update-task/40
+  body:
+    type: json
+    data: |-
+      {
+       "name": "topo do lista9",
+        "distanceKm": 7,
+        "environment": "esteira",
+        "date": "2025-08-09T14:30:00Z",
+        "duration": 2
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

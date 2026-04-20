@@ -4,7 +4,13 @@ import { ZodError } from 'zod'
 import { zodErrorResponse } from '../../shared/zod-error-response'
 import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
 import { CreateDesafioMultipartSchema, CreateDesafioSchema, GetDesafioParamsSchema } from './schema'
-import { createDesafio, getAllDesafio, getDesafio, getPurchaseData } from './services'
+import {
+  createDesafio,
+  getAllDesafio,
+  getDesafio,
+  getPurchaseData,
+  registerUserDesafio,
+} from './services'
 
 export const desafioRoutes = new Elysia({ prefix: '/desafio' })
   .use(createProtectedRoutes('desafio-auth-guard'))
@@ -68,6 +74,44 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
       detail: {
         tags: ['Desafio'],
         summary: 'Create challenge',
+      },
+    },
+  )
+  .post(
+    '/register-user-desafio/:id',
+    async ({ params, request }) => {
+      try {
+        const session = await resolveSession(request)
+        const { id } = GetDesafioParamsSchema.parse(params)
+
+        return await registerUserDesafio(id, session!.user.id)
+      }
+      catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error)
+        }
+
+        if (error instanceof Error && error.message.includes('already registered')) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        if (error instanceof Error && error.message.includes('not found')) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        throw error
+      }
+    },
+    {
+      detail: {
+        tags: ['Desafio'],
+        summary: 'Register authenticated user in a challenge',
       },
     },
   )

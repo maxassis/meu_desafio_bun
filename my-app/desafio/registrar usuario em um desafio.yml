@@ -1,11 +1,11 @@
 info:
-  name: pegar dados da pagina de compra
+  name: registrar usuario em um desafio
   type: http
-  seq: 4
+  seq: 5
 
 http:
-  method: GET
-  url: http://localhost:3000/desafio/purchase-data/1
+  method: POST
+  url: http://localhost:3000/desafio/register-user-desafio/28
   auth: inherit
 
 settings:

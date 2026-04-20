@@ -3,8 +3,13 @@ import { ZodError } from 'zod'
 
 import { zodErrorResponse } from '../../shared/zod-error-response'
 import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
-import { CreateTaskSchema, DeleteTaskParamsSchema, GetTasksParamsSchema } from './schema'
-import { createTask, deleteTask, getTasks } from './services'
+import {
+  CreateTaskSchema,
+  DeleteTaskParamsSchema,
+  GetTasksParamsSchema,
+  UpdateTaskSchema,
+} from './schema'
+import { createTask, deleteTask, getTasks, updateTask } from './services'
 
 export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .use(createProtectedRoutes('tasks-auth-guard'))
@@ -94,6 +99,38 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
       detail: {
         tags: ['Tasks'],
         summary: 'Delete a user task',
+      },
+    },
+  )
+  .patch(
+    '/update-task/:taskId',
+    async ({ body, params, request }) => {
+      try {
+        const session = await resolveSession(request)
+        const parsedBody = UpdateTaskSchema.parse(body)
+        const { taskId } = DeleteTaskParamsSchema.parse(params)
+
+        return updateTask(session!.user.id, taskId, parsedBody)
+      }
+      catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error)
+        }
+
+        if (error instanceof Error && error.message.includes('Task not found')) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        throw error
+      }
+    },
+    {
+      detail: {
+        tags: ['Tasks'],
+        summary: 'Update a user task',
       },
     },
   )
