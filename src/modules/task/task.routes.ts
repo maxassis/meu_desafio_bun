@@ -118,7 +118,7 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     },
   )
   .delete(
-    '/:taskId',
+    '/delete-task/:taskId',
     async ({ params, request }) => {
       try {
         const session = await resolveSession(request)

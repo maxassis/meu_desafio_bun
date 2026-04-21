@@ -7,6 +7,18 @@ export async function deleteTask(userId: string, taskId: number) {
       id: taskId,
       userId,
     },
+    include: {
+      inscription: {
+        include: {
+          desafio: {
+            select: {
+              distance: true,
+              id: true,
+            },
+          },
+        },
+      },
+    },
   })
 
   if (!task) {
@@ -36,28 +48,25 @@ export async function deleteTask(userId: string, taskId: number) {
     0,
   )
 
+  const desafioDistance = Number(task.inscription.desafio.distance)
+  const isCompleted = totalDistance >= desafioDistance
+  const progressToSave = isCompleted ? desafioDistance : totalDistance
+
   await prisma.inscription.update({
     where: { id: inscriptionId },
-    data: { progress: totalDistance },
-  })
-
-  const desafio = await prisma.desafio.findFirst({
-    where: {
-      inscription: {
-        some: {
-          id: inscriptionId,
-        },
-      },
+    data: {
+      progress: progressToSave,
+      completed: isCompleted,
+      completedAt: isCompleted ? task.inscription.completedAt ?? new Date() : null,
     },
   })
 
-  if (desafio) {
-    await Promise.all([
-      cacheService.del(`desafio:${desafio.id}`),
-      cacheService.del(`user:${userId}:desafios`),
-      cacheService.del(`user:${userId}:inscription:${inscriptionId}:tasks`),
-    ])
-  }
+  await Promise.all([
+    cacheService.del(`desafio:${task.inscription.desafio.id}`),
+    cacheService.del(`user:${userId}:desafios`),
+    cacheService.del(`user:${userId}:inscription:${inscriptionId}:tasks`),
+    cacheService.del(`user:profile:${userId}`),
+  ])
 
   return {
     message: 'Task deleted successfully',
