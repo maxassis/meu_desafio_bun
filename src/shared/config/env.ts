@@ -22,6 +22,7 @@ const envSchema = z.object({
   R2_ACCOUNT_ID: requiredString('R2_ACCOUNT_ID'),
   R2_ACCESS_KEY_ID: requiredString('R2_ACCESS_KEY_ID'),
   R2_SECRET_ACCESS_KEY: requiredString('R2_SECRET_ACCESS_KEY'),
+  R2_PUBLIC_URL_AVATARS: z.url({ error: 'R2_PUBLIC_URL_AVATARS must be a valid URL' }).optional(),
   R2_PUBLIC_URL_DESAFIOS: z.url({ error: 'R2_PUBLIC_URL_DESAFIOS must be a valid URL' }),
   REDIS_HOST: requiredString('REDIS_HOST'),
   REDIS_PORT: z.coerce
@@ -58,6 +59,7 @@ export const env = {
   r2AccountId: parsedEnv.data.R2_ACCOUNT_ID,
   r2AccessKeyId: parsedEnv.data.R2_ACCESS_KEY_ID,
   r2SecretAccessKey: parsedEnv.data.R2_SECRET_ACCESS_KEY,
+  r2PublicUrlAvatars: parsedEnv.data.R2_PUBLIC_URL_AVATARS,
   r2PublicUrlDesafios: parsedEnv.data.R2_PUBLIC_URL_DESAFIOS,
   redisHost: parsedEnv.data.REDIS_HOST,
   redisPassword: parsedEnv.data.REDIS_PASSWORD,

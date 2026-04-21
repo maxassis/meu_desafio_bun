@@ -30,7 +30,7 @@ class CloudflareR2Service {
     })
 
     this.bucketUrlMap = {
-      avatars: env.r2PublicUrlDesafios || '',
+      avatars: env.r2PublicUrlAvatars || '',
       desafios: env.r2PublicUrlDesafios || '',
     }
   }

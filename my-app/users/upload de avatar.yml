@@ -1,0 +1,22 @@
+info:
+  name: upload de avatar
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3000/users/upload-avatar
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /home/teddy/Imagens/BingWallpaper/20260227-ArcitcCub_PT-BR4178932499_UHD.jpg
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

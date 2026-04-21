@@ -8,7 +8,14 @@ import {
   GetRankingParamsSchema,
   GetUserProfileParamsSchema,
 } from './schema'
-import { editUserData, getRanking, getUserData, getUserProfile } from './services'
+import {
+  deleteAvatar,
+  editUserData,
+  getRanking,
+  getUserData,
+  getUserProfile,
+  uploadAvatar,
+} from './services'
 
 export const usersRoutes = new Elysia({ prefix: '/users' })
   .use(createProtectedRoutes('users-auth-guard'))
@@ -107,6 +114,85 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
       detail: {
         tags: ['Users'],
         summary: 'Update authenticated user data',
+      },
+    },
+  )
+  .post(
+    '/upload-avatar',
+    async ({ body, request }) => {
+      try {
+        const session = await resolveSession(request)
+        const file = body && typeof body === 'object' && 'file' in body
+          ? body.file
+          : undefined
+
+        if (!(file instanceof File)) {
+          return new Response(JSON.stringify({ message: 'No file provided or invalid format' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        return await uploadAvatar(session!.user.id, file)
+      }
+      catch (error) {
+        if (error instanceof Error && error.message.includes('User not found')) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        if (
+          error instanceof Error
+          && (
+            error.message.includes('No file provided')
+            || error.message.includes('invalid format')
+            || error.message.includes('not an image')
+          )
+        ) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        throw error
+      }
+    },
+    {
+      detail: {
+        tags: ['Users'],
+        summary: 'Upload authenticated user avatar',
+      },
+    },
+  )
+  .delete(
+    '/upload-avatar',
+    async ({ request }) => {
+      try {
+        const session = await resolveSession(request)
+
+        return await deleteAvatar(session!.user.id)
+      }
+      catch (error) {
+        if (
+          error instanceof Error
+          && error.message.includes('User not found or avatar does not exist')
+        ) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        throw error
+      }
+    },
+    {
+      detail: {
+        tags: ['Users'],
+        summary: 'Delete authenticated user avatar',
       },
     },
   )
