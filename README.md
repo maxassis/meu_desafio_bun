@@ -47,7 +47,7 @@ Defina as variaveis abaixo no `.env`:
 ```env
 GOOGLE_CLIENT_ID=seu-client-id
 GOOGLE_CLIENT_SECRET=seu-client-secret
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5500
 ```
 
 No Google Cloud Console, configure o URI de redirecionamento autorizado com o mesmo host do `BETTER_AUTH_URL`:
@@ -56,19 +56,29 @@ No Google Cloud Console, configure o URI de redirecionamento autorizado com o me
 http://SEU_HOST:3000/api/auth/callback/google
 ```
 
+Para desenvolvimento local, cadastre tambem o callback web em `localhost`:
+
+```text
+http://localhost:3000/api/auth/callback/google
+```
+
 Para iniciar o login social:
 
 ```bash
-curl -X POST http://localhost:3000/api/auth/sign-in/social \
+curl -i -X POST http://localhost:3000/api/auth/sign-in/social \
   -H "Content-Type: application/json" \
   -d '{
     "provider": "google",
-    "callbackURL": "http://localhost:3000",
-    "disableRedirect": true
+    "callbackURL": "http://localhost:5500"
   }'
 ```
 
-A resposta retorna a `url` para redirecionar o usuario ao Google.
+No fluxo web, deixe o navegador seguir o redirecionamento e use o `callbackURL`
+da origem do frontend. Nao use o endpoint de callback do Google como `FRONTEND_URL`.
+
+Quando o backend recebe a requisicao em `http://localhost:3000`, o callback do Google
+tambem sera montado com `localhost`. Quando a requisicao chega pelo IP da rede local,
+o callback usara esse IP. Para login web, prefira iniciar o fluxo por `localhost`.
 
 ## Verificacao por OTP
 

@@ -45,7 +45,7 @@
     <pre id="output">Pronto.</pre>
 
     <script>
-      const API_BASE = "http://localhost:3000";
+      const API_BASE = `${window.location.protocol}//${window.location.hostname}:3000`;
       const callbackURL = window.location.origin + window.location.pathname;
 
       const apiBaseEl = document.getElementById("apiBase");
@@ -119,6 +119,8 @@
       document
         .getElementById("sessionBtn")
         .addEventListener("click", () => void getSession());
+
+      void getSession();
     </script>
   </body>
 </html>

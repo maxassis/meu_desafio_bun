@@ -19,6 +19,16 @@ import {
 
 const emailVerificationOtpExpiresInSeconds = 300
 
+const authDevBaseUrls = ['http://localhost:3000', 'http://127.0.0.1:3000']
+
+const authAllowedHosts = Array.from(
+  new Set(
+    [env.betterAuthUrl, ...authDevBaseUrls]
+      .map((url) => new URL(url).host)
+      .filter((host) => host.length > 0),
+  ),
+)
+
 const expoTrustedOrigins = env.expoScheme
   ? [
       `${env.expoScheme}://`,
@@ -29,8 +39,10 @@ const expoTrustedOrigins = env.expoScheme
 
 const devOrigins = [
   'http://localhost:3000',
+  'http://localhost:5500',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
+  'http://127.0.0.1:5500',
   'http://127.0.0.1:5173',
 ]
 
@@ -44,7 +56,11 @@ const trustedOrigins = Array.from(
 
 export const auth = betterAuth({
   secret: env.betterAuthSecret,
-  baseURL: env.betterAuthUrl,
+  baseURL: {
+    allowedHosts: authAllowedHosts,
+    fallback: env.betterAuthUrl,
+    protocol: 'http',
+  },
   trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
