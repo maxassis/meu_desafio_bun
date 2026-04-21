@@ -4,12 +4,13 @@ import { ZodError } from 'zod'
 import { zodErrorResponse } from '../../shared/zod-error-response'
 import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
 import {
+  CheckCompletionSchema,
   CreateTaskSchema,
   DeleteTaskParamsSchema,
   GetTasksParamsSchema,
   UpdateTaskSchema,
 } from './schema'
-import { createTask, deleteTask, getTasks, updateTask } from './services'
+import { checkCompletion, createTask, deleteTask, getTasks, updateTask } from './services'
 
 export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .use(createProtectedRoutes('tasks-auth-guard'))
@@ -75,6 +76,44 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
       detail: {
         tags: ['Tasks'],
         summary: 'Get user tasks by inscription',
+      },
+    },
+  )
+  .post(
+    '/check-completion',
+    async ({ body, request }) => {
+      try {
+        const session = await resolveSession(request)
+        const parsedBody = CheckCompletionSchema.parse(body)
+
+        return await checkCompletion(
+          session!.user.id,
+          parsedBody.inscriptionId,
+          parsedBody.distance,
+        )
+      }
+      catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error)
+        }
+
+        if (
+          error instanceof Error
+          && error.message.includes('Inscription not found or does not belong to the user')
+        ) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        throw error
+      }
+    },
+    {
+      detail: {
+        tags: ['Tasks'],
+        summary: 'Check if a task distance completes the challenge',
       },
     },
   )
