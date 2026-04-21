@@ -14,11 +14,11 @@ http:
     data: |-
       {
         "email": "teste@example.com",
-        "password": "12345678"
+        "password": "Bondelis1!"
       }
   auth:
     type: bearer
-    token: ''
+    token: ""
 
 settings:
   encodeUrl: true

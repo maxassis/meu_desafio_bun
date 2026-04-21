@@ -3,8 +3,12 @@ import { ZodError } from 'zod'
 
 import { zodErrorResponse } from '../../shared/zod-error-response'
 import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
-import { EditUserDataSchema, GetUserProfileParamsSchema } from './schema'
-import { editUserData, getUserData, getUserProfile } from './services'
+import {
+  EditUserDataSchema,
+  GetRankingParamsSchema,
+  GetUserProfileParamsSchema,
+} from './schema'
+import { editUserData, getRanking, getUserData, getUserProfile } from './services'
 
 export const usersRoutes = new Elysia({ prefix: '/users' })
   .use(createProtectedRoutes('users-auth-guard'))
@@ -49,6 +53,36 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
       detail: {
         tags: ['Users'],
         summary: 'Get user profile by ID',
+      },
+    },
+  )
+  .get(
+    '/get-ranking/:desafioId',
+    async ({ params }) => {
+      try {
+        const { desafioId } = GetRankingParamsSchema.parse(params)
+
+        return await getRanking(desafioId)
+      }
+      catch (error) {
+        if (error instanceof ZodError) {
+          return zodErrorResponse(error)
+        }
+
+        if (error instanceof Error && error.message.includes('not found')) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
+        throw error
+      }
+    },
+    {
+      detail: {
+        tags: ['Users'],
+        summary: 'Get challenge ranking by ID',
       },
     },
   )
