@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: http://localhost:3000/tasks/update-task/1
+  url: "{{baseUrl}}/tasks/update-task/1"
   body:
     type: json
     data: |-

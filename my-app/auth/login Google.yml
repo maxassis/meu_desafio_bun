@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/api/auth/sign-in/social
+  url: "{{baseUrl}}/api/auth/sign-in/social"
   headers:
     - name: credentials
       value: include
@@ -16,7 +16,7 @@ http:
     data: |-
       {
         "provider": "google",
-        "callbackURL": "http://localhost:3000",
+        "callbackURL": "{{baseUrl}}",
         "disableRedirect": true
       }
   auth: inherit

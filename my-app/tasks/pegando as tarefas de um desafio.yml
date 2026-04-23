@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3000/tasks/get-tasks/cmo4ppneq0000xbyba8g7uvuy
+  url: "{{baseUrl}}/tasks/get-tasks/cmo4ppneq0000xbyba8g7uvuy"
   auth: inherit
 
 settings:

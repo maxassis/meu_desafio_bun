@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/desafio/register-user-desafio/cmo4u80cj0000i6yb1r3xvo5x
+  url: "{{baseUrl}}/desafio/register-user-desafio/cmo4u80cj0000i6yb1r3xvo5x"
   auth: inherit
 
 settings:

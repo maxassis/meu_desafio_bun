@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3000/users/get-user-profile/eYRSAvTsiNGOWHaFaYsEwO1lXK95WCL9
+  url: "{{baseUrl}}/users/get-user-profile/eYRSAvTsiNGOWHaFaYsEwO1lXK95WCL9"
   auth: inherit
 
 settings:

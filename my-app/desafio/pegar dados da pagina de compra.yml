@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3000/desafio/purchase-data/1
+  url: "{{baseUrl}}/desafio/purchase-data/1"
   auth: inherit
 
 settings:

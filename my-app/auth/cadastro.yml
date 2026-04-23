@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/api/auth/sign-up/email
+  url: "{{baseUrl}}/api/auth/sign-up/email"
   headers:
     - name: Origin
       value: http://localhost:5173
@@ -16,7 +16,7 @@ http:
         "name": "teste",
         "email": "teste@example.com",
         "password": "12345678",
-        "callbackURL": "http://localhost:3000"
+        "callbackURL": "{{baseUrl}}"
       }
   auth: inherit
 

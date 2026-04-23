@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/desafio/create
+  url: "{{baseUrl}}/desafio/create"
   auth: inherit
 
 settings:

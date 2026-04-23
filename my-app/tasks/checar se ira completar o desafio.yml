@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: /tasks/check-completion
+  url: "{{baseUrl}}/tasks/check-completion"
   auth: inherit
 
 settings:

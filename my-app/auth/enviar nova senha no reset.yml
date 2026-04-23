@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/api/auth/email-otp/reset-password
+  url: "{{baseUrl}}/api/auth/email-otp/reset-password"
   headers:
     - name: Origin
       value: http://localhost:3000

@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/users/upload-avatar
+  url: "{{baseUrl}}/users/upload-avatar"
   body:
     type: multipart-form
     data:

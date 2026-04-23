@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/api/auth/sign-in/email
+  url: "{{baseUrl}}/api/auth/sign-in/email"
   headers:
     - name: Origin
       value: http://localhost:3000

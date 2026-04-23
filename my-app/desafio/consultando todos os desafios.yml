@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3000/desafio/get-all-desafio
+  url: "{{baseUrl}}/desafio/get-all-desafio"
   headers:
     - name: Origin
       value: http://localhost:5500
