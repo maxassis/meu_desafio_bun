@@ -1,7 +1,16 @@
 import { cacheService } from '../../../lib/cache/redis'
+import { env } from '../../../shared/config/env'
 import { prisma } from '../../../shared/db/prisma'
 
 const CACHE_TTL_SECONDS = 10000
+
+function getAvatarUrl(avatarFilename: string | null) {
+  if (!avatarFilename || !env.r2PublicUrlAvatars) {
+    return null
+  }
+
+  return `${env.r2PublicUrlAvatars}/${avatarFilename}`
+}
 
 interface RankingItem {
   position: number
@@ -126,7 +135,7 @@ export async function getRanking(desafioId: string): Promise<RankingItem[]> {
     return {
       userId: inscription.user.id,
       userName: inscription.user.name,
-      userAvatar: inscription.user.userData?.avatarFilename ?? null,
+      userAvatar: getAvatarUrl(inscription.user.userData?.avatarFilename ?? null),
       totalDistance: Number(totalDistance.toFixed(2)),
       totalDurationSeconds: Number(totalDurationSeconds.toFixed(2)),
       totalTasks: inscription._count.tasks,
