@@ -48,7 +48,7 @@ const devOrigins = [
 
 const trustedOrigins = Array.from(
   new Set(
-    [env.frontendUrl, env.betterAuthUrl, ...devOrigins, ...expoTrustedOrigins].filter(
+    ['https://teste.maxdev.sbs', env.frontendUrl, env.betterAuthUrl, ...devOrigins, ...expoTrustedOrigins].filter(
       (origin): origin is string => Boolean(origin),
     ),
   ),

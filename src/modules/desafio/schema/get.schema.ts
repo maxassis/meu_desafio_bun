@@ -17,7 +17,7 @@ export const GetDesafioResponseSchema = z.object({
       user: z.object({
         id: z.string(),
         name: z.string(),
-        avatarFilename: z.string().nullable(),
+        avatar: z.string().nullable(),
       }),
       progress: z.unknown(),
       totalTasks: z.number(),

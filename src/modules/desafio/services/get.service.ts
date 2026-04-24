@@ -1,8 +1,17 @@
 import type { GetDesafioResponse } from '../schema/get.schema'
 import { cacheService } from '../../../lib/cache/redis'
+import { env } from '../../../shared/config/env'
 import { prisma } from '../../../shared/db/prisma'
 
 const CACHE_TTL_SECONDS = 300
+
+function getAvatarUrl(avatarFilename: string | null) {
+  if (!avatarFilename || !env.r2PublicUrlAvatars) {
+    return null
+  }
+
+  return `${env.r2PublicUrlAvatars}/${avatarFilename}`
+}
 
 export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse> {
   const cacheKey = `desafio:${idDesafio}`
@@ -62,7 +71,7 @@ export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse>
         user: {
           id: inscription.user.id,
           name: inscription.user.name,
-          avatarFilename: inscription.user.userData?.avatarFilename ?? null,
+          avatar: getAvatarUrl(inscription.user.userData?.avatarFilename ?? null),
         },
         progress: inscription.progress,
         totalTasks: tasks.length,

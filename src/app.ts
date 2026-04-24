@@ -13,6 +13,7 @@ import { env } from './shared/config/env'
 const allowedOrigins = Array.from(
   new Set(
     [
+      'https://teste.maxdev.sbs',
       env.frontendUrl,
       env.betterAuthUrl,
       'http://localhost:3000',
