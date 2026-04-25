@@ -37,12 +37,21 @@ function mapUserDataResponse(userData: UserDataCache, name: string) {
   }
 }
 
-export async function getUserData(id: string, name: string) {
+export async function getUserData(id: string) {
   const cacheKey = `user:${id}:data`
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { name: true },
+  })
+
+  if (!user) {
+    throw new Error('User not found')
+  }
 
   const cachedUserData = await cacheService.get<UserDataCache>(cacheKey)
   if (cachedUserData) {
-    return mapUserDataResponse(cachedUserData, name)
+    return mapUserDataResponse(cachedUserData, user.name)
   }
 
   const userData = await prisma.userData.findUnique({
@@ -53,5 +62,5 @@ export async function getUserData(id: string, name: string) {
 
   await cacheService.set(cacheKey, userData, CACHE_TTL_SECONDS)
 
-  return mapUserDataResponse(userData, name)
+  return mapUserDataResponse(userData, user.name)
 }

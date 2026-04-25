@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "full_name" : "oioio",
+        "full_name" : "oioio22",
         "bio": "22222",
         "birthDate": "11041983"
       }

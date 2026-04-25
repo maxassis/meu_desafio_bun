@@ -24,7 +24,7 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
     async ({ request }) => {
       const session = await resolveSession(request)
 
-      return getUserData(session!.user.id, session!.user.name)
+      return getUserData(session!.user.id)
     },
     {
       detail: {
@@ -100,7 +100,14 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
         const session = await resolveSession(request)
         const parsedBody = EditUserDataSchema.parse(body)
 
-        return editUserData(session!.user.id, parsedBody)
+        return editUserData(session!.user.id, {
+          avatarFilename: parsedBody.avatar_filename,
+          bio: parsedBody.bio,
+          gender: parsedBody.gender,
+          sport: parsedBody.sport,
+          birthDate: parsedBody.birthDate,
+          name: parsedBody.full_name ?? undefined,
+        })
       }
       catch (error) {
         if (error instanceof ZodError) {
