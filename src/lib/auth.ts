@@ -20,10 +20,11 @@ import {
 const emailVerificationOtpExpiresInSeconds = 300
 
 const authDevBaseUrls = ['http://localhost:3000', 'http://127.0.0.1:3000']
+const authProductionBaseUrls = ['https://teste.maxdev.sbs']
 
 const authAllowedHosts = Array.from(
   new Set(
-    [env.betterAuthUrl, ...authDevBaseUrls]
+    [env.betterAuthUrl, ...authProductionBaseUrls, ...authDevBaseUrls]
       .map((url) => new URL(url).host)
       .filter((host) => host.length > 0),
   ),
@@ -59,7 +60,7 @@ export const auth = betterAuth({
   baseURL: {
     allowedHosts: authAllowedHosts,
     fallback: env.betterAuthUrl,
-    protocol: 'http',
+    protocol: 'auto',
   },
   trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
   database: prismaAdapter(prisma, {
