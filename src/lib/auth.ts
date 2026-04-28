@@ -2,7 +2,7 @@ import { expo } from '@better-auth/expo'
 import { prismaAdapter } from '@better-auth/prisma-adapter'
 import { render, toPlainText } from '@react-email/render'
 import { betterAuth } from 'better-auth'
-import { bearer, emailOTP, jwt, openAPI } from 'better-auth/plugins'
+import { emailOTP, openAPI } from 'better-auth/plugins'
 import { createElement } from 'react'
 
 import { env } from '../shared/config/env'
@@ -96,8 +96,6 @@ export const auth = betterAuth({
   },
   plugins: [
     expo(),
-    bearer({ requireSignature: true }),
-    jwt(),
     openAPI(),
     emailOTP({
       allowedAttempts: 3,

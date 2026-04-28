@@ -12,7 +12,7 @@ http:
       - name: file
         type: file
         value:
-          - /home/teddy/Imagens/BingWallpaper/20260227-ArcitcCub_PT-BR4178932499_UHD.jpg
+          - /home/teddy/Imagens/BingWallpaper/20260215-MontereyHumpbacks_PT-BR6399797691_UHD.jpg
   auth: inherit
 
 settings:
