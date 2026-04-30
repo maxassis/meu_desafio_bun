@@ -34,7 +34,7 @@ export function EmailVerificationOtpEmail({
           <Section style={logoWrapper}>
             <Img
               alt="Meu Desafio"
-              height="52"
+              height="150"
               src="https://yvievpygnysrufdcakbz.supabase.co/storage/v1/object/public/emails//logoEmail.png"
               style={logo}
             />
@@ -56,6 +56,7 @@ export function EmailVerificationOtpEmail({
 
           <Text style={emphasis}>
             Esse codigo expira apos
+            {' '}
             {expiresInMinutes}
             {' '}
             minutos.

@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/tasks/create"
+  url: '{{baseUrl}}/tasks/create'
   body:
     type: json
     data: |-
