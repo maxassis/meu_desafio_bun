@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
 import { env } from '../shared/config/env'
 
@@ -9,17 +9,10 @@ interface SendEmailInput {
   html?: string
 }
 
-const transporter = nodemailer.createTransport({
-  host: env.emailHost,
-  port: env.emailPort,
-  auth: {
-    user: env.emailUser,
-    pass: env.emailPass,
-  },
-})
+const resend = new Resend(env.resendApiKey)
 
 export async function sendEmail({ to, subject, text, html }: SendEmailInput) {
-  const info = await transporter.sendMail({
+  const data = await resend.emails.send({
     from: env.emailFrom,
     to,
     subject,
@@ -27,11 +20,5 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput) {
     html,
   })
 
-  const previewUrl = nodemailer.getTestMessageUrl(info)
-
-  if (previewUrl) {
-    console.log(`Email preview: ${previewUrl}`)
-  }
-
-  return info
+  return data
 }

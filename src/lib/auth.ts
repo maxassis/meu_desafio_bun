@@ -25,8 +25,8 @@ const authProductionBaseUrls = ['https://teste.maxdev.sbs']
 const authAllowedHosts = Array.from(
   new Set(
     [env.betterAuthUrl, ...authProductionBaseUrls, ...authDevBaseUrls]
-      .map((url) => new URL(url).host)
-      .filter((host) => host.length > 0),
+      .map(url => new URL(url).host)
+      .filter(host => host.length > 0),
   ),
 )
 

@@ -26,10 +26,11 @@ const envSchema = z.object({
   R2_PUBLIC_URL_DESAFIOS: z.url({ error: 'R2_PUBLIC_URL_DESAFIOS must be a valid URL' }),
   REDIS_HOST: requiredString('REDIS_HOST'),
   REDIS_PORT: z.coerce
-    .number({ error: 'REDIS_PORT must be a valid number' })
+    .number({ error: 'REDEN_PORT must be a valid number' })
     .int('REDIS_PORT must be an integer')
     .positive('REDIS_PORT must be greater than zero'),
   REDIS_PASSWORD: z.string().optional(),
+  RESEND_API_KEY: requiredString('RESEND_API_KEY'),
 })
 
 const parsedEnv = envSchema.safeParse(process.env)
@@ -64,4 +65,5 @@ export const env = {
   redisHost: parsedEnv.data.REDIS_HOST,
   redisPassword: parsedEnv.data.REDIS_PASSWORD,
   redisPort: parsedEnv.data.REDIS_PORT,
+  resendApiKey: parsedEnv.data.RESEND_API_KEY,
 }

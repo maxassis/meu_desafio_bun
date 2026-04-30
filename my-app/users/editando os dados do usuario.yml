@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{baseUrl}}/users/edit-user-data"
+  url: '{{baseUrl}}/users/edit-user-data'
   body:
     type: json
     data: |-

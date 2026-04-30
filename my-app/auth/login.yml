@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/auth/sign-in/email"
+  url: '{{baseUrl}}/api/auth/sign-in/email'
   headers:
     - name: Origin
       value: http://localhost:3000
@@ -18,7 +18,7 @@ http:
       }
   auth:
     type: bearer
-    token: ""
+    token: ''
 
 settings:
   encodeUrl: true

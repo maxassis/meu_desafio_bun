@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/auth/sign-in/social"
+  url: '{{baseUrl}}/api/auth/sign-in/social'
   headers:
     - name: credentials
       value: include
