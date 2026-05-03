@@ -7,10 +7,8 @@ http:
   method: GET
   url: '{{baseUrl}}/api/auth/get-session'
   headers:
-    - name: Authorization
-      value: Bearer {{sessionToken}}
-    - name: X-Client-Platform
-      value: mobile
+    - name: Origin
+      value: '{{baseUrl}}'
   auth: inherit
 
 settings:

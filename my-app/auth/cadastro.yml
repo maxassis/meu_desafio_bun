@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: '{{baseUrl}}/api/auth/sign-up/email'
+  url: "{{baseUrl}}/api/auth/sign-up/email"
   headers:
     - name: Origin
       value: http://localhost:5173
@@ -13,8 +13,8 @@ http:
     type: json
     data: |-
       {
-        "name": "teste",
-        "email": "teste@example.com",
+        "name": "Bondis",
+        "email": "fernandaassis.ux@gmail.com",
         "password": "12345678",
         "callbackURL": "{{baseUrl}}"
       }

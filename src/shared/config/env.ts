@@ -9,6 +9,8 @@ const envSchema = z.object({
   DATABASE_URL: requiredString('DATABASE_URL'),
   GOOGLE_CLIENT_ID: requiredString('GOOGLE_CLIENT_ID'),
   GOOGLE_CLIENT_SECRET: requiredString('GOOGLE_CLIENT_SECRET'),
+  STRAVA_CLIENT_ID: z.string().trim().min(1).optional(),
+  STRAVA_CLIENT_SECRET: z.string().trim().min(1).optional(),
   FRONTEND_URL: z.url({ error: 'FRONTEND_URL must be a valid URL' }),
   EXPO_SCHEME: requiredString('EXPO_SCHEME'),
   EMAIL_HOST: requiredString('EMAIL_HOST'),
@@ -26,7 +28,7 @@ const envSchema = z.object({
   R2_PUBLIC_URL_DESAFIOS: z.url({ error: 'R2_PUBLIC_URL_DESAFIOS must be a valid URL' }),
   REDIS_HOST: requiredString('REDIS_HOST'),
   REDIS_PORT: z.coerce
-    .number({ error: 'REDEN_PORT must be a valid number' })
+    .number({ error: 'REDIS_PORT must be a valid number' })
     .int('REDIS_PORT must be an integer')
     .positive('REDIS_PORT must be greater than zero'),
   REDIS_PASSWORD: z.string().optional(),
@@ -50,6 +52,8 @@ export const env = {
   databaseUrl: parsedEnv.data.DATABASE_URL,
   googleClientId: parsedEnv.data.GOOGLE_CLIENT_ID,
   googleClientSecret: parsedEnv.data.GOOGLE_CLIENT_SECRET,
+  stravaClientId: parsedEnv.data.STRAVA_CLIENT_ID,
+  stravaClientSecret: parsedEnv.data.STRAVA_CLIENT_SECRET,
   frontendUrl: parsedEnv.data.FRONTEND_URL,
   expoScheme: parsedEnv.data.EXPO_SCHEME,
   emailHost: parsedEnv.data.EMAIL_HOST,

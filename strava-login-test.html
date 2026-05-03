@@ -1,0 +1,48 @@
+<script>
+  const baseUrl = 'https://teste.maxdev.sbs';
+
+  async function request(method, path, body, useCookie = false) {
+    const opts = {
+      method,
+      credentials: 'include',  // ← ADICIONE ISTO
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': baseUrl,
+      },
+    };
+    if (body) opts.body = JSON.stringify(body);
+
+    const res = await fetch(baseUrl + path, opts);
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch { json = text; }
+
+    document.getElementById('result').textContent = JSON.stringify({ status: res.status, body: json }, null, 2);
+    return json;
+  }
+
+  let sessionToken = localStorage.getItem('strava_session') || '';
+
+  async function login() {
+    const res = await request('POST', '/api/auth/sign-in/email', { email: 'teste@example.com', password: 'Bondelis1!' });
+    const setCookie = res.headers?.get?.('set-cookie') || '';
+    const match = setCookie.match(/better-auth\.session_token=([^;]+)/);
+    if (match) {
+      sessionToken = match[1];
+      localStorage.setItem('strava_session', sessionToken);
+      document.getElementById('result').className = 'success';
+    }
+  }
+
+  async function getSession() {
+    await request('GET', '/api/auth/get-session', null, true);
+  }
+
+  async function linkStrava() {
+    await request('POST', '/api/auth/oauth2/link', {
+      providerId: 'strava',
+      callbackURL: 'meudesafio2://strava-connected',
+      scopes: ['read', 'activity:read_all'],
+    }, true);
+  }
+</script>
