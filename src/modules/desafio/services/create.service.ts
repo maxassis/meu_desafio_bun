@@ -24,12 +24,7 @@ export async function createDesafio(
     throw new Error('Name already exists')
   }
 
-  const parsedLocation = Array.isArray(location)
-    ? location
-    : (JSON.parse(location) as Array<{
-        latitude: number
-        longitude: number
-      }>)
+  const parsedLocation = location
   const parsedPurchaseData = PurchaseDataSchema.parse(
     typeof purchaseData === 'string' ? JSON.parse(purchaseData) : purchaseData,
   )
