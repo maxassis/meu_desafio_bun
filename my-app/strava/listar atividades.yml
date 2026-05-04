@@ -1,0 +1,15 @@
+info:
+  name: listar atividades
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/integrations/strava/activities"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
