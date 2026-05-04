@@ -9,7 +9,7 @@ export type GetDesafioParams = z.infer<typeof GetDesafioParamsSchema>
 export const GetDesafioResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
-  location: z.unknown(),
+  location: z.string(),
   distance: z.unknown(),
   photo: z.string(),
   inscriptions: z.array(
