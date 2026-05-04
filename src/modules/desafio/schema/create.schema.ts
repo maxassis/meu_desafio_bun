@@ -26,7 +26,10 @@ export type PurchaseData = z.infer<typeof PurchaseDataSchema>
 export const CreateDesafioSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   location: z.string().min(1, 'Location is required'),
-  distance: z.string().min(1, 'Distance is required'),
+  distance: z.coerce
+    .number({ error: 'Distance must be a valid number' })
+    .finite('Distance must be finite')
+    .positive('Distance must be greater than zero'),
   priceId: z.string().min(1, 'Price ID is required'),
   active: z.coerce.boolean(),
   purchaseData: z.union([

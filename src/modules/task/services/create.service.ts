@@ -26,7 +26,7 @@ export async function createTask(input: CreateTaskInput, userId: string) {
     throw new Error('This challenge is already completed. You cannot add more tasks.')
   }
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const task = await tx.task.create({
       data: {
         name: input.name,
@@ -70,15 +70,17 @@ export async function createTask(input: CreateTaskInput, userId: string) {
       },
     })
 
-    await Promise.all([
-      cacheService.del(`desafio:${userInscription.desafio.id}`),
-      cacheService.del(`user:${userId}:desafios`),
-      cacheService.del(`user:${userId}:inscription:${input.inscriptionId}:tasks`),
-    ])
-
     return {
       message: 'Task created successfully',
       task,
     }
   })
+
+  await Promise.allSettled([
+    cacheService.del(`desafio:${userInscription.desafio.id}`),
+    cacheService.del(`user:${userId}:desafios`),
+    cacheService.del(`user:${userId}:inscription:${input.inscriptionId}:tasks`),
+  ])
+
+  return result
 }

@@ -139,6 +139,7 @@ model Inscription {
   completed   Boolean   @default(false)
   completedAt DateTime?
 
+  @@unique([userId, desafioId])
   @@map("inscription")
 }
 

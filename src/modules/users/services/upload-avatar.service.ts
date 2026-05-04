@@ -4,13 +4,25 @@ import { cacheService } from '../../../lib/cache/redis'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
 
-function getFileExtension(file: File) {
-  const nameExtension = file.name.split('.').pop()?.trim()
-  if (nameExtension) {
-    return nameExtension
+const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024
+const allowedAvatarTypes = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+} as const
+
+function validateAvatarFile(file: File) {
+  const extension = allowedAvatarTypes[file.type as keyof typeof allowedAvatarTypes]
+
+  if (!extension) {
+    throw new Error('The uploaded file must be a JPEG, PNG, or WEBP image')
   }
 
-  return file.type.split('/').pop()?.trim() || ''
+  if (file.size > MAX_AVATAR_SIZE_BYTES) {
+    throw new Error('Avatar file size must be 2MB or less')
+  }
+
+  return extension
 }
 
 export async function uploadAvatar(userId: string, file: File) {
@@ -18,9 +30,7 @@ export async function uploadAvatar(userId: string, file: File) {
     throw new Error('No file provided or invalid format')
   }
 
-  if (!file.type.startsWith('image/')) {
-    throw new Error('The uploaded file is not an image')
-  }
+  const fileExtension = validateAvatarFile(file)
 
   const userData = await prisma.userData.findUnique({
     where: { userId },
@@ -30,8 +40,7 @@ export async function uploadAvatar(userId: string, file: File) {
     throw new Error('User not found')
   }
 
-  const fileExtension = getFileExtension(file)
-  const fileName = `${userId}-avatar-${Date.now()}${fileExtension ? `.${fileExtension}` : ''}`
+  const fileName = `${userId}-avatar-${Date.now()}.${fileExtension}`
   const fileBuffer = Buffer.from(await file.arrayBuffer())
   const bucketName = 'avatars'
 

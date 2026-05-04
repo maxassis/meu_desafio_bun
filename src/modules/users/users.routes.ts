@@ -156,6 +156,8 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
             error.message.includes('No file provided')
             || error.message.includes('invalid format')
             || error.message.includes('not an image')
+            || error.message.includes('must be a JPEG')
+            || error.message.includes('file size')
           )
         ) {
           return new Response(JSON.stringify({ message: error.message }), {

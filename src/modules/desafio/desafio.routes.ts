@@ -67,6 +67,19 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
           return zodErrorResponse(error)
         }
 
+        if (
+          error instanceof Error
+          && (
+            error.message.includes('File must')
+            || error.message.includes('File size')
+          )
+        ) {
+          return new Response(JSON.stringify({ message: error.message }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+
         throw error
       }
     },
