@@ -1,6 +1,7 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
+  ignores: ['env.d.ts'],
   lessOpinionated: true,
   react: true,
   typescript: true,

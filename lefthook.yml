@@ -1,0 +1,7 @@
+pre-commit:
+  parallel: true
+  commands:
+    varlock-scan:
+    # run: bun x varlock scan --staged
+    lint:
+    # run: bun run lint

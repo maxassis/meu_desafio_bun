@@ -5,7 +5,7 @@ import { betterAuth } from 'better-auth'
 import { emailOTP, openAPI } from 'better-auth/plugins'
 import { createElement } from 'react'
 
-import { env } from '../shared/config/env'
+import { ENV } from 'varlock/env'
 import { prisma } from '../shared/db/prisma'
 import { sendEmail } from './email'
 import {
@@ -19,47 +19,35 @@ import {
 
 const emailVerificationOtpExpiresInSeconds = 300
 
-const authDevBaseUrls = ['http://localhost:3000', 'http://127.0.0.1:3000']
-const authProductionBaseUrls = ['https://teste.maxdev.sbs']
-
 const authAllowedHosts = Array.from(
   new Set(
-    [env.betterAuthUrl, ...authProductionBaseUrls, ...authDevBaseUrls]
+    [ENV.BETTER_AUTH_URL]
       .map(url => new URL(url).host)
       .filter(host => host.length > 0),
   ),
 )
 
-const expoTrustedOrigins = env.expoScheme
+const expoTrustedOrigins = ENV.EXPO_SCHEME
   ? [
-      `${env.expoScheme}://`,
-      `${env.expoScheme}://*`,
-      `${env.expoScheme}://**`,
+      `${ENV.EXPO_SCHEME}://`,
+      `${ENV.EXPO_SCHEME}://*`,
+      `${ENV.EXPO_SCHEME}://**`,
     ]
   : []
 
-const devOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5500',
-  'http://localhost:5173',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:5500',
-  'http://127.0.0.1:5173',
-]
-
 const trustedOrigins = Array.from(
   new Set(
-    ['https://teste.maxdev.sbs', env.frontendUrl, env.betterAuthUrl, ...devOrigins, ...expoTrustedOrigins].filter(
+    [ENV.FRONTEND_URL, ENV.BETTER_AUTH_URL, ...expoTrustedOrigins].filter(
       (origin): origin is string => Boolean(origin),
     ),
   ),
 )
 
 export const auth = betterAuth({
-  secret: env.betterAuthSecret,
+  secret: ENV.BETTER_AUTH_SECRET,
   baseURL: {
     allowedHosts: authAllowedHosts,
-    fallback: env.betterAuthUrl,
+    fallback: ENV.BETTER_AUTH_URL,
     protocol: 'auto',
   },
   trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
@@ -81,8 +69,8 @@ export const auth = betterAuth({
   },
   socialProviders: {
     google: {
-      clientId: env.googleClientId,
-      clientSecret: env.googleClientSecret,
+      clientId: ENV.GOOGLE_CLIENT_ID,
+      clientSecret: ENV.GOOGLE_CLIENT_SECRET,
     },
   },
   emailAndPassword: {

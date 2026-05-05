@@ -28,7 +28,6 @@ export const CreateDesafioSchema = z.object({
   location: z.string().min(1, 'Location is required'),
   distance: z.coerce
     .number({ error: 'Distance must be a valid number' })
-    .finite('Distance must be finite')
     .positive('Distance must be greater than zero'),
   priceId: z.string().min(1, 'Price ID is required'),
   active: z.coerce.boolean(),

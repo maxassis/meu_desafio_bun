@@ -1,15 +1,15 @@
+import { ENV } from 'varlock/env'
 import { cacheService } from '../../../lib/cache/redis'
-import { env } from '../../../shared/config/env'
 import { prisma } from '../../../shared/db/prisma'
 
 const CACHE_TTL_SECONDS = 10000
 
 function getAvatarUrl(avatarFilename: string | null) {
-  if (!avatarFilename || !env.r2PublicUrlAvatars) {
+  if (!avatarFilename || !ENV.R2_PUBLIC_URL_AVATARS) {
     return null
   }
 
-  return `${env.r2PublicUrlAvatars}/${avatarFilename}`
+  return `${ENV.R2_PUBLIC_URL_AVATARS}/${avatarFilename}`
 }
 
 interface RankingItem {

@@ -1,5 +1,5 @@
 import Redis from 'ioredis'
-import { env } from '../../shared/config/env'
+import { ENV } from 'varlock/env'
 
 class CacheService {
   private redis: Redis | null = null
@@ -9,14 +9,14 @@ class CacheService {
   }
 
   private initRedis() {
-    if (!env.redisHost) {
+    if (!ENV.REDIS_HOST) {
       throw new Error('REDIS_HOST is required')
     }
 
     this.redis = new Redis({
-      host: env.redisHost,
-      port: env.redisPort ? Number(env.redisPort) : 6379,
-      password: env.redisPassword || undefined,
+      host: ENV.REDIS_HOST,
+      port: ENV.REDIS_PORT ? Number(ENV.REDIS_PORT) : 6379,
+      password: ENV.REDIS_PASSWORD || undefined,
       lazyConnect: true,
       maxRetriesPerRequest: 3,
       retryStrategy: (times) => {
