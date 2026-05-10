@@ -10,7 +10,7 @@ http:
     - name: credentials
       value: include
     - name: Origin
-      value: http://localhost:3000
+      value: http://127.0.0.1:5500
   body:
     type: json
     data: |-
