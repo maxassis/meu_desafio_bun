@@ -2,6 +2,7 @@ import type { GetDesafioResponse } from '../schema/get.schema'
 import { ENV } from 'varlock/env'
 import { cacheService } from '../../../lib/cache/redis'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 const CACHE_TTL_SECONDS = 300
 
@@ -40,7 +41,7 @@ export async function getDesafio(idDesafio: string): Promise<GetDesafioResponse>
   })
 
   if (!desafio) {
-    throw new Error(`Desafio with ID ${idDesafio} not found`)
+    throw new NotFoundError(`Desafio with ID ${idDesafio} not found`)
   }
 
   const inscriptionsWithStats = await Promise.all(

@@ -5,6 +5,7 @@ import type {
 import { randomUUID } from 'node:crypto'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
+import { BadRequestError, DomainError } from '../../../shared/errors'
 import {
   PurchaseDataSchema,
 } from '../schema/create.schema'
@@ -20,11 +21,11 @@ function validateImageFile(file: File) {
   const extension = allowedImageTypes[file.type as keyof typeof allowedImageTypes]
 
   if (!extension) {
-    throw new Error('File must be a JPEG, PNG, or WEBP image')
+    throw new BadRequestError('File must be a JPEG, PNG, or WEBP image')
   }
 
   if (file.size > MAX_DESAFIO_IMAGE_SIZE_BYTES) {
-    throw new Error('File size must be 5MB or less')
+    throw new BadRequestError('File size must be 5MB or less')
   }
 
   return extension
@@ -42,7 +43,7 @@ export async function createDesafio(
   })
 
   if (existingDesafio) {
-    throw new Error('Name already exists')
+    throw new BadRequestError('Name already exists')
   }
 
   const parsedLocation = location
@@ -73,6 +74,10 @@ export async function createDesafio(
         imageUrls.push(publicUrl)
       }
       catch (error: unknown) {
+        if (error instanceof DomainError) {
+          throw error
+        }
+
         const errorMessage
           = error instanceof Error ? error.message : 'Unknown error'
         if (errorMessage.includes('R2 not configured')) {

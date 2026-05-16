@@ -1,6 +1,7 @@
 import { cacheService } from '../../../lib/cache/redis'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 export async function deleteAvatar(userId: string) {
   const bucketName = 'avatars'
@@ -12,7 +13,7 @@ export async function deleteAvatar(userId: string) {
   })
 
   if (!userData || !userData.avatarFilename) {
-    throw new Error('User not found or avatar does not exist')
+    throw new NotFoundError('User not found or avatar does not exist')
   }
 
   await r2Service.deleteFile(userData.avatarFilename, bucketName)

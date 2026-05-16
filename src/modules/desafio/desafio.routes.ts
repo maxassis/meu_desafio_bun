@@ -1,8 +1,6 @@
 import { Elysia } from 'elysia'
-import { ZodError } from 'zod'
 
-import { zodErrorResponse } from '../../shared/zod-error-response'
-import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
+import { getRequiredSession } from '../auth/auth.middleware'
 import { CreateDesafioMultipartSchema, CreateDesafioSchema, GetDesafioParamsSchema } from './schema'
 import {
   createDesafio,
@@ -13,13 +11,12 @@ import {
 } from './services'
 
 export const desafioRoutes = new Elysia({ prefix: '/desafio' })
-  .use(createProtectedRoutes('desafio-auth-guard'))
   .get(
     '/get-all-desafio',
     async ({ request }) => {
-      const session = await resolveSession(request)
+      const session = await getRequiredSession(request)
 
-      return getAllDesafio(session!.user.id)
+      return getAllDesafio(session.user.id)
     },
     {
       detail: {
@@ -30,58 +27,38 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
   )
   .post(
     '/create',
-    async ({ body }) => {
-      try {
-        const parsedMultipartBody = CreateDesafioMultipartSchema.parse(body)
-        const parsed = CreateDesafioSchema.parse({
-          name: parsedMultipartBody.name,
-          location: parsedMultipartBody.location,
-          distance: parsedMultipartBody.distance,
-          active: parsedMultipartBody.active,
-          priceId: parsedMultipartBody.priceId,
-          purchaseData: parsedMultipartBody.purchaseData,
-        })
+    async ({ body, request }) => {
+      await getRequiredSession(request)
 
-        const files = Array.isArray(parsedMultipartBody.images)
-          ? parsedMultipartBody.images
-          : parsedMultipartBody.images
-            ? [parsedMultipartBody.images]
-            : []
+      const parsedMultipartBody = CreateDesafioMultipartSchema.parse(body)
+      const parsed = CreateDesafioSchema.parse({
+        name: parsedMultipartBody.name,
+        location: parsedMultipartBody.location,
+        distance: parsedMultipartBody.distance,
+        active: parsedMultipartBody.active,
+        priceId: parsedMultipartBody.priceId,
+        purchaseData: parsedMultipartBody.purchaseData,
+      })
 
-        const result = await createDesafio(
-          {
-            name: parsed.name,
-            location: parsed.location,
-            distance: parsed.distance,
-            active: parsed.active,
-            priceId: parsed.priceId,
-            purchaseData: parsed.purchaseData,
-          },
-          files,
-        )
+      const files = Array.isArray(parsedMultipartBody.images)
+        ? parsedMultipartBody.images
+        : parsedMultipartBody.images
+          ? [parsedMultipartBody.images]
+          : []
 
-        return result
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
+      const result = await createDesafio(
+        {
+          name: parsed.name,
+          location: parsed.location,
+          distance: parsed.distance,
+          active: parsed.active,
+          priceId: parsed.priceId,
+          purchaseData: parsed.purchaseData,
+        },
+        files,
+      )
 
-        if (
-          error instanceof Error
-          && (
-            error.message.includes('File must')
-            || error.message.includes('File size')
-          )
-        ) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return result
     },
     {
       detail: {
@@ -93,33 +70,10 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
   .post(
     '/register-user-desafio/:id',
     async ({ params, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const { id } = GetDesafioParamsSchema.parse(params)
+      const session = await getRequiredSession(request)
+      const { id } = GetDesafioParamsSchema.parse(params)
 
-        return await registerUserDesafio(id, session!.user.id)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        if (error instanceof Error && error.message.includes('already registered')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        if (error instanceof Error && error.message.includes('not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await registerUserDesafio(id, session.user.id)
     },
     {
       detail: {
@@ -130,25 +84,12 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
   )
   .get(
     '/:id',
-    async ({ params }) => {
-      try {
-        const { id } = GetDesafioParamsSchema.parse(params)
-        const resultado = await getDesafio(id)
-        return resultado
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
+    async ({ params, request }) => {
+      await getRequiredSession(request)
 
-        if (error instanceof Error && error.message.includes('not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-        throw error
-      }
+      const { id } = GetDesafioParamsSchema.parse(params)
+      const resultado = await getDesafio(id)
+      return resultado
     },
     {
       detail: {
@@ -159,25 +100,11 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
   )
   .get(
     '/purchase-data/:id',
-    async ({ params }) => {
-      try {
-        const { id } = GetDesafioParamsSchema.parse(params)
-        return await getPurchaseData(id)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
+    async ({ params, request }) => {
+      await getRequiredSession(request)
 
-        if (error instanceof Error && error.message.includes('not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      const { id } = GetDesafioParamsSchema.parse(params)
+      return await getPurchaseData(id)
     },
     {
       detail: {

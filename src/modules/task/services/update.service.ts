@@ -1,6 +1,7 @@
 import type { UpdateTaskInput } from '../schema/update.schema'
 import { cacheService } from '../../../lib/cache/redis'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 export async function updateTask(userId: string, taskId: number, input: UpdateTaskInput) {
   const task = await prisma.task.findFirst({
@@ -23,7 +24,7 @@ export async function updateTask(userId: string, taskId: number, input: UpdateTa
   })
 
   if (!task) {
-    throw new Error('Task not found')
+    throw new NotFoundError('Task not found')
   }
 
   const result = await prisma.$transaction(async (tx) => {

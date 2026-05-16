@@ -1,6 +1,7 @@
 import { ENV } from 'varlock/env'
 import { cacheService } from '../../../lib/cache/redis'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 const CACHE_TTL_SECONDS = 10000
 
@@ -49,7 +50,7 @@ export async function getRanking(desafioId: string): Promise<RankingItem[]> {
   })
 
   if (!desafio) {
-    throw new Error(`Challenge with ID ${desafioId} not found`)
+    throw new NotFoundError(`Challenge with ID ${desafioId} not found`)
   }
 
   const inscriptions = await prisma.inscription.findMany({

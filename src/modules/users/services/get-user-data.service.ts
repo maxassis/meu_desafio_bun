@@ -1,6 +1,7 @@
 import { ENV } from 'varlock/env'
 import { cacheService } from '../../../lib/cache/redis'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 const CACHE_TTL_SECONDS = 3600
 
@@ -46,7 +47,7 @@ export async function getUserData(id: string) {
   })
 
   if (!user) {
-    throw new Error('User not found')
+    throw new NotFoundError('User not found')
   }
 
   const cachedUserData = await cacheService.get<UserDataCache>(cacheKey)

@@ -1,5 +1,5 @@
 name: local
 variables:
   - name: baseUrl
-    value: ""
+    value: ''
     disabled: true

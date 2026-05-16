@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer'
 import { cacheService } from '../../../lib/cache/redis'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
+import { BadRequestError, NotFoundError } from '../../../shared/errors'
 
 const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024
 const allowedAvatarTypes = {
@@ -15,11 +16,11 @@ function validateAvatarFile(file: File) {
   const extension = allowedAvatarTypes[file.type as keyof typeof allowedAvatarTypes]
 
   if (!extension) {
-    throw new Error('The uploaded file must be a JPEG, PNG, or WEBP image')
+    throw new BadRequestError('The uploaded file must be a JPEG, PNG, or WEBP image')
   }
 
   if (file.size > MAX_AVATAR_SIZE_BYTES) {
-    throw new Error('Avatar file size must be 2MB or less')
+    throw new BadRequestError('Avatar file size must be 2MB or less')
   }
 
   return extension
@@ -27,7 +28,7 @@ function validateAvatarFile(file: File) {
 
 export async function uploadAvatar(userId: string, file: File) {
   if (!file.type) {
-    throw new Error('No file provided or invalid format')
+    throw new BadRequestError('No file provided or invalid format')
   }
 
   const fileExtension = validateAvatarFile(file)
@@ -37,7 +38,7 @@ export async function uploadAvatar(userId: string, file: File) {
   })
 
   if (!userData) {
-    throw new Error('User not found')
+    throw new NotFoundError('User not found')
   }
 
   const fileName = `${userId}-avatar-${Date.now()}.${fileExtension}`

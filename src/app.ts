@@ -4,12 +4,12 @@ import { Elysia } from 'elysia'
 
 import { ENV } from 'varlock/env'
 import { authOpenAPI } from './lib/auth'
-import { sendEmail } from './lib/email'
 import { authPlugin } from './modules/auth/auth.plugin'
 import { desafioRoutes } from './modules/desafio/desafio.routes'
 import { helloRoutes } from './modules/hello/hello.route'
 import { taskRoutes } from './modules/task/task.routes'
 import { usersRoutes } from './modules/users/users.routes'
+import { errorHandler } from './shared/error-handler'
 
 const allowedOrigins = Array.from(
   new Set(
@@ -19,6 +19,7 @@ const allowedOrigins = Array.from(
 )
 
 export const app = new Elysia()
+  .onError(errorHandler)
   .use(
     cors({
       credentials: true,
@@ -49,47 +50,3 @@ export const app = new Elysia()
   .use(desafioRoutes)
   .use(usersRoutes)
   .use(taskRoutes)
-  .post(
-    '/test/send-email',
-    async ({ body }) => {
-      const { to, subject, text, html } = body as {
-        to?: string
-        subject?: string
-        text?: string
-        html?: string
-      }
-
-      if (!to || !subject || !text) {
-        return new Response(
-          JSON.stringify({
-            message: 'Missing required fields: to, subject, text',
-          }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } },
-        )
-      }
-
-      try {
-        const result = await sendEmail({ to, subject, text, html })
-
-        return {
-          success: true,
-          data: result,
-        }
-      }
-      catch (error) {
-        return new Response(
-          JSON.stringify({
-            message: 'Failed to send email',
-            error: error instanceof Error ? error.message : String(error),
-          }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } },
-        )
-      }
-    },
-    {
-      detail: {
-        tags: ['Test'],
-        summary: 'Test email sending with Resend',
-      },
-    },
-  )

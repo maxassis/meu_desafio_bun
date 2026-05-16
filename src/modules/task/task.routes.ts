@@ -1,8 +1,6 @@
 import { Elysia } from 'elysia'
-import { ZodError } from 'zod'
 
-import { zodErrorResponse } from '../../shared/zod-error-response'
-import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
+import { getRequiredSession } from '../auth/auth.middleware'
 import {
   CheckCompletionSchema,
   CreateTaskSchema,
@@ -13,40 +11,13 @@ import {
 import { checkCompletion, createTask, deleteTask, getTasks, updateTask } from './services'
 
 export const taskRoutes = new Elysia({ prefix: '/tasks' })
-  .use(createProtectedRoutes('tasks-auth-guard'))
   .post(
     '/create',
     async ({ body, request }) => {
-      try {
-        const parsedBody = CreateTaskSchema.parse(body)
-        const session = await resolveSession(request)
+      const session = await getRequiredSession(request)
+      const parsedBody = CreateTaskSchema.parse(body)
 
-        return await createTask(parsedBody, session!.user.id)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        if (
-          error instanceof Error
-          && error.message.includes('not registered for this challenge')
-        ) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 403,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        if (error instanceof Error && error.message.includes('already completed')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await createTask(parsedBody, session.user.id)
     },
     {
       detail: {
@@ -58,19 +29,10 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .get(
     '/get-tasks/:inscriptionId',
     async ({ params, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const { inscriptionId } = GetTasksParamsSchema.parse(params)
+      const session = await getRequiredSession(request)
+      const { inscriptionId } = GetTasksParamsSchema.parse(params)
 
-        return getTasks(session!.user.id, inscriptionId)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        throw error
-      }
+      return getTasks(session.user.id, inscriptionId)
     },
     {
       detail: {
@@ -82,33 +44,14 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .post(
     '/check-completion',
     async ({ body, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const parsedBody = CheckCompletionSchema.parse(body)
+      const session = await getRequiredSession(request)
+      const parsedBody = CheckCompletionSchema.parse(body)
 
-        return await checkCompletion(
-          session!.user.id,
-          parsedBody.inscriptionId,
-          parsedBody.distance,
-        )
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        if (
-          error instanceof Error
-          && error.message.includes('Inscription not found or does not belong to the user')
-        ) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await checkCompletion(
+        session.user.id,
+        parsedBody.inscriptionId,
+        parsedBody.distance,
+      )
     },
     {
       detail: {
@@ -120,19 +63,10 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .delete(
     '/delete-task/:taskId',
     async ({ params, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const { taskId } = DeleteTaskParamsSchema.parse(params)
+      const session = await getRequiredSession(request)
+      const { taskId } = DeleteTaskParamsSchema.parse(params)
 
-        return deleteTask(session!.user.id, taskId)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        throw error
-      }
+      return deleteTask(session.user.id, taskId)
     },
     {
       detail: {
@@ -144,27 +78,11 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .patch(
     '/update-task/:taskId',
     async ({ body, params, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const parsedBody = UpdateTaskSchema.parse(body)
-        const { taskId } = DeleteTaskParamsSchema.parse(params)
+      const session = await getRequiredSession(request)
+      const parsedBody = UpdateTaskSchema.parse(body)
+      const { taskId } = DeleteTaskParamsSchema.parse(params)
 
-        return updateTask(session!.user.id, taskId, parsedBody)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        if (error instanceof Error && error.message.includes('Task not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return updateTask(session.user.id, taskId, parsedBody)
     },
     {
       detail: {

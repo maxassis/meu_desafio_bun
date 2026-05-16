@@ -1,6 +1,7 @@
 import type { CreateTaskInput } from '../schema/create.schema'
 import { cacheService } from '../../../lib/cache/redis'
 import { prisma } from '../../../shared/db/prisma'
+import { BadRequestError, ForbiddenError } from '../../../shared/errors'
 
 export async function createTask(input: CreateTaskInput, userId: string) {
   const userInscription = await prisma.inscription.findFirst({
@@ -19,11 +20,11 @@ export async function createTask(input: CreateTaskInput, userId: string) {
   })
 
   if (!userInscription) {
-    throw new Error('User is not registered for this challenge')
+    throw new ForbiddenError('User is not registered for this challenge')
   }
 
   if (userInscription.completed) {
-    throw new Error('This challenge is already completed. You cannot add more tasks.')
+    throw new BadRequestError('This challenge is already completed. You cannot add more tasks.')
   }
 
   const result = await prisma.$transaction(async (tx) => {
