@@ -1,4 +1,5 @@
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
+import { z } from 'zod'
 
 import { BadRequestError } from '../../shared/errors'
 import { getRequiredSession } from '../auth/auth.middleware'
@@ -8,6 +9,7 @@ import {
   GetUserProfileParamsSchema,
 } from './schema'
 import {
+  checkEmailExists,
   deleteAvatar,
   editUserData,
   getRanking,
@@ -17,6 +19,25 @@ import {
 } from './services'
 
 export const usersRoutes = new Elysia({ prefix: '/users' })
+  .post(
+    '/check-email',
+    async ({ body }) => {
+      const { email } = body as { email: string }
+      return checkEmailExists(email)
+    },
+    {
+      body: t.Object({
+        email: t.String({ format: 'email' }),
+      }),
+      response: t.Object({
+        exists: t.Boolean(),
+      }),
+      detail: {
+        tags: ['Users'],
+        summary: 'Check if email exists',
+      },
+    },
+  )
   .get(
     '/get-user-data',
     async ({ request }) => {

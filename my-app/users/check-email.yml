@@ -1,11 +1,11 @@
 info:
-  name: verificar o codigo na criação de usuario
+  name: check-email
   type: http
-  seq: 5
+  seq: 1
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/auth/email-otp/verify-email"
+  url: '{{baseUrl}}/users/check-email'
   headers:
     - name: Origin
       value: http://127.0.0.1:5500
@@ -13,10 +13,8 @@ http:
     type: json
     data: |-
       {
-        "email": "teste@example.com",
-        "otp": "08184"
+        "email": "teste@example.com"
       }
-  auth: inherit
 
 settings:
   encodeUrl: true
