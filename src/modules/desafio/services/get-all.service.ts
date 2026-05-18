@@ -1,4 +1,4 @@
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
 
 const CACHE_TTL_SECONDS = 600

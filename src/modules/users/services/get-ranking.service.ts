@@ -1,9 +1,9 @@
 import { ENV } from 'varlock/env'
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
 import { NotFoundError } from '../../../shared/errors'
 
-const CACHE_TTL_SECONDS = 10000
+const CACHE_TTL_SECONDS = 600
 
 function getAvatarUrl(avatarFilename: string | null) {
   if (!avatarFilename || !ENV.R2_PUBLIC_URL_AVATARS) {

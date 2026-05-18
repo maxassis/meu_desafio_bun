@@ -1,4 +1,4 @@
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
 import { NotFoundError } from '../../../shared/errors'

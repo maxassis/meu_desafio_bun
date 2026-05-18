@@ -1,6 +1,6 @@
 import type { GetDesafioResponse } from '../schema/get.schema'
 import { ENV } from 'varlock/env'
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
 import { NotFoundError } from '../../../shared/errors'
 

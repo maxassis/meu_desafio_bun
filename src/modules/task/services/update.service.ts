@@ -1,5 +1,5 @@
 import type { UpdateTaskInput } from '../schema/update.schema'
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
 import { NotFoundError } from '../../../shared/errors'
 
