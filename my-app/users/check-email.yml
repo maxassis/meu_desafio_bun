@@ -1,11 +1,11 @@
 info:
-  name: cadastro
+  name: check-email
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/auth/sign-up/email"
+  url: '{{baseUrl}}/users/check-email'
   headers:
     - name: Origin
       value: http://127.0.0.1:5500
@@ -13,12 +13,8 @@ http:
     type: json
     data: |-
       {
-        "name": "Bondis",
-        "email": "fernandaassis.ux@gmail.com",
-        "password": "12345678",
-        "callbackURL": "{{baseUrl}}"
+        "email": "teste@example.com"
       }
-  auth: inherit
 
 settings:
   encodeUrl: true

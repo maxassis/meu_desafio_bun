@@ -1,14 +1,15 @@
-import { Elysia } from 'elysia'
-import { ZodError } from 'zod'
+import { Elysia, t } from 'elysia'
+import { z } from 'zod'
 
-import { zodErrorResponse } from '../../shared/zod-error-response'
-import { createProtectedRoutes, resolveSession } from '../auth/auth.middleware'
+import { BadRequestError } from '../../shared/errors'
+import { getRequiredSession } from '../auth/auth.middleware'
 import {
   EditUserDataSchema,
   GetRankingParamsSchema,
   GetUserProfileParamsSchema,
 } from './schema'
 import {
+  checkEmailExists,
   deleteAvatar,
   editUserData,
   getRanking,
@@ -18,13 +19,31 @@ import {
 } from './services'
 
 export const usersRoutes = new Elysia({ prefix: '/users' })
-  .use(createProtectedRoutes('users-auth-guard'))
+  .post(
+    '/check-email',
+    async ({ body }) => {
+      const { email } = body as { email: string }
+      return checkEmailExists(email)
+    },
+    {
+      body: t.Object({
+        email: t.String({ format: 'email' }),
+      }),
+      response: t.Object({
+        exists: t.Boolean(),
+      }),
+      detail: {
+        tags: ['Users'],
+        summary: 'Check if email exists',
+      },
+    },
+  )
   .get(
     '/get-user-data',
     async ({ request }) => {
-      const session = await resolveSession(request)
+      const session = await getRequiredSession(request)
 
-      return getUserData(session!.user.id)
+      return getUserData(session.user.id)
     },
     {
       detail: {
@@ -35,26 +54,12 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
   )
   .get(
     '/get-user-profile/:id',
-    async ({ params }) => {
-      try {
-        const { id } = GetUserProfileParamsSchema.parse(params)
+    async ({ params, request }) => {
+      await getRequiredSession(request)
 
-        return await getUserProfile(id)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
+      const { id } = GetUserProfileParamsSchema.parse(params)
 
-        if (error instanceof Error && error.message.includes('User not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await getUserProfile(id)
     },
     {
       detail: {
@@ -65,26 +70,12 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
   )
   .get(
     '/get-ranking/:desafioId',
-    async ({ params }) => {
-      try {
-        const { desafioId } = GetRankingParamsSchema.parse(params)
+    async ({ params, request }) => {
+      await getRequiredSession(request)
 
-        return await getRanking(desafioId)
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
+      const { desafioId } = GetRankingParamsSchema.parse(params)
 
-        if (error instanceof Error && error.message.includes('not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await getRanking(desafioId)
     },
     {
       detail: {
@@ -96,26 +87,17 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
   .patch(
     '/edit-user-data',
     async ({ body, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const parsedBody = EditUserDataSchema.parse(body)
+      const session = await getRequiredSession(request)
+      const parsedBody = EditUserDataSchema.parse(body)
 
-        return editUserData(session!.user.id, {
-          avatarFilename: parsedBody.avatar_filename,
-          bio: parsedBody.bio,
-          gender: parsedBody.gender,
-          sport: parsedBody.sport,
-          birthDate: parsedBody.birthDate,
-          name: parsedBody.full_name ?? undefined,
-        })
-      }
-      catch (error) {
-        if (error instanceof ZodError) {
-          return zodErrorResponse(error)
-        }
-
-        throw error
-      }
+      return editUserData(session.user.id, {
+        avatarFilename: parsedBody.avatar_filename,
+        bio: parsedBody.bio,
+        gender: parsedBody.gender,
+        sport: parsedBody.sport,
+        birthDate: parsedBody.birthDate,
+        name: parsedBody.full_name ?? undefined,
+      })
     },
     {
       detail: {
@@ -127,45 +109,16 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
   .post(
     '/upload-avatar',
     async ({ body, request }) => {
-      try {
-        const session = await resolveSession(request)
-        const file = body && typeof body === 'object' && 'file' in body
-          ? body.file
-          : undefined
+      const session = await getRequiredSession(request)
+      const file = body && typeof body === 'object' && 'file' in body
+        ? body.file
+        : undefined
 
-        if (!(file instanceof File)) {
-          return new Response(JSON.stringify({ message: 'No file provided or invalid format' }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        return await uploadAvatar(session!.user.id, file)
+      if (!(file instanceof File)) {
+        throw new BadRequestError('No file provided or invalid format')
       }
-      catch (error) {
-        if (error instanceof Error && error.message.includes('User not found')) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
 
-        if (
-          error instanceof Error
-          && (
-            error.message.includes('No file provided')
-            || error.message.includes('invalid format')
-            || error.message.includes('not an image')
-          )
-        ) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await uploadAvatar(session.user.id, file)
     },
     {
       detail: {
@@ -177,24 +130,9 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
   .delete(
     '/upload-avatar',
     async ({ request }) => {
-      try {
-        const session = await resolveSession(request)
+      const session = await getRequiredSession(request)
 
-        return await deleteAvatar(session!.user.id)
-      }
-      catch (error) {
-        if (
-          error instanceof Error
-          && error.message.includes('User not found or avatar does not exist')
-        ) {
-          return new Response(JSON.stringify({ message: error.message }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        throw error
-      }
+      return await deleteAvatar(session.user.id)
     },
     {
       detail: {

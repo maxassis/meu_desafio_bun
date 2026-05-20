@@ -1,6 +1,7 @@
-import { cacheService } from '../../../lib/cache/redis'
-import { env } from '../../../shared/config/env'
+import { ENV } from 'varlock/env'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 const CACHE_TTL_SECONDS = 3600
 
@@ -16,11 +17,11 @@ type UserDataCache = {
 } | null
 
 function getAvatarUrl(avatarFilename: string | null) {
-  if (!avatarFilename || !env.r2PublicUrlAvatars) {
+  if (!avatarFilename || !ENV.R2_PUBLIC_URL_AVATARS) {
     return null
   }
 
-  return `${env.r2PublicUrlAvatars}/${avatarFilename}`
+  return `${ENV.R2_PUBLIC_URL_AVATARS}/${avatarFilename}`
 }
 
 function mapUserDataResponse(userData: UserDataCache, name: string) {
@@ -46,7 +47,7 @@ export async function getUserData(id: string) {
   })
 
   if (!user) {
-    throw new Error('User not found')
+    throw new NotFoundError('User not found')
   }
 
   const cachedUserData = await cacheService.get<UserDataCache>(cacheKey)

@@ -5,10 +5,10 @@ info:
 
 http:
   method: GET
-  url: '{{baseUrl}}/desafio/cmo4u80cj0000i6yb1r3xvo5x'
+  url: '{{baseUrl}}/desafio/cmorp57y50000gmybsc5cbtvg'
   headers:
     - name: Origin
-      value: http://localhost:5173
+      value: http://127.0.0.1:5500
       disabled: true
   auth: inherit
 

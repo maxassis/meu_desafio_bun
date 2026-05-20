@@ -5,9 +5,31 @@ import type {
 import { randomUUID } from 'node:crypto'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
+import { BadRequestError, DomainError } from '../../../shared/errors'
 import {
   PurchaseDataSchema,
 } from '../schema/create.schema'
+
+const MAX_DESAFIO_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const allowedImageTypes = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+} as const
+
+function validateImageFile(file: File) {
+  const extension = allowedImageTypes[file.type as keyof typeof allowedImageTypes]
+
+  if (!extension) {
+    throw new BadRequestError('File must be a JPEG, PNG, or WEBP image')
+  }
+
+  if (file.size > MAX_DESAFIO_IMAGE_SIZE_BYTES) {
+    throw new BadRequestError('File size must be 5MB or less')
+  }
+
+  return extension
+}
 
 export async function createDesafio(
   input: CreateDesafioInput,
@@ -21,19 +43,14 @@ export async function createDesafio(
   })
 
   if (existingDesafio) {
-    throw new Error('Name already exists')
+    throw new BadRequestError('Name already exists')
   }
 
-  const parsedLocation = Array.isArray(location)
-    ? location
-    : (JSON.parse(location) as Array<{
-        latitude: number
-        longitude: number
-      }>)
+  const parsedLocation = location
   const parsedPurchaseData = PurchaseDataSchema.parse(
     typeof purchaseData === 'string' ? JSON.parse(purchaseData) : purchaseData,
   )
-  const parsedDistance = Number(distance)
+  const parsedDistance = distance
 
   const imageUrls: string[] = []
   const uploadedFileNames: string[] = []
@@ -41,7 +58,8 @@ export async function createDesafio(
   if (files && files.length > 0) {
     for (const file of files) {
       try {
-        const fileName = `${randomUUID()}-${file.name}`
+        const extension = validateImageFile(file)
+        const fileName = `${randomUUID()}.${extension}`
         const arrayBuffer = await file.arrayBuffer()
         const buffer = Buffer.from(arrayBuffer)
 
@@ -56,6 +74,10 @@ export async function createDesafio(
         imageUrls.push(publicUrl)
       }
       catch (error: unknown) {
+        if (error instanceof DomainError) {
+          throw error
+        }
+
         const errorMessage
           = error instanceof Error ? error.message : 'Unknown error'
         if (errorMessage.includes('R2 not configured')) {
@@ -71,6 +93,10 @@ export async function createDesafio(
           catch {
             console.error('Error cleaning up image:', fileName)
           }
+        }
+
+        if (errorMessage.includes('File must') || errorMessage.includes('File size')) {
+          throw new Error(errorMessage)
         }
 
         throw new Error(`Error processing file ${file.name}: ${errorMessage}`)

@@ -1,4 +1,5 @@
-import { env } from '../shared/config/env'
+import { ENV } from 'varlock/env'
+
 import { prisma } from '../shared/db/prisma'
 import { decryptStravaToken, encryptStravaToken } from './strava-crypto'
 
@@ -35,14 +36,14 @@ export async function getValidStravaToken(userId: string): Promise<string | null
     return null
   }
 
-  if (!env.stravaClientId || !env.stravaClientSecret) {
+  if (!ENV.STRAVA_CLIENT_ID || !ENV.STRAVA_CLIENT_SECRET) {
     throw new Error('Strava client credentials not configured')
   }
 
   try {
     const params = new URLSearchParams({
-      client_id: env.stravaClientId,
-      client_secret: env.stravaClientSecret,
+      client_id: String(ENV.STRAVA_CLIENT_ID),
+      client_secret: ENV.STRAVA_CLIENT_SECRET,
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
     })

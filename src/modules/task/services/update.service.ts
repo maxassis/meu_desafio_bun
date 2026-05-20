@@ -1,6 +1,7 @@
 import type { UpdateTaskInput } from '../schema/update.schema'
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 export async function updateTask(userId: string, taskId: number, input: UpdateTaskInput) {
   const task = await prisma.task.findFirst({
@@ -23,10 +24,10 @@ export async function updateTask(userId: string, taskId: number, input: UpdateTa
   })
 
   if (!task) {
-    throw new Error('Task not found')
+    throw new NotFoundError('Task not found')
   }
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const updatedTask = await tx.task.update({
       where: {
         id: taskId,
@@ -71,17 +72,19 @@ export async function updateTask(userId: string, taskId: number, input: UpdateTa
       },
     })
 
-    await Promise.all([
-      cacheService.del(`desafio:${task.inscription.desafio.id}`),
-      cacheService.del(`user:${userId}:desafios`),
-      cacheService.del(`user:${userId}:inscription:${task.inscriptionId}:tasks`),
-      cacheService.del(`user:profile:${userId}`),
-    ])
-
     return {
       message: 'Task updated successfully',
       task: updatedTask,
       progressUpdated: true,
     }
   })
+
+  await Promise.allSettled([
+    cacheService.del(`desafio:${task.inscription.desafio.id}`),
+    cacheService.del(`user:${userId}:desafios`),
+    cacheService.del(`user:${userId}:inscription:${task.inscriptionId}:tasks`),
+    cacheService.del(`user:profile:${userId}`),
+  ])
+
+  return result
 }

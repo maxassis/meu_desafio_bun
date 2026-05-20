@@ -1,7 +1,7 @@
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
 
-const CACHE_TTL_SECONDS = 3600
+const CACHE_TTL_SECONDS = 120
 
 export async function getTasks(userId: string, inscriptionId: number) {
   const cacheKey = `user:${userId}:inscription:${inscriptionId}:tasks`

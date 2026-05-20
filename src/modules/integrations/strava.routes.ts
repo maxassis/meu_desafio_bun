@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia'
 
+import { decryptStravaToken } from '../../lib/strava-crypto'
 import { getValidStravaToken } from '../../lib/strava-token-manager'
 import { prisma } from '../../shared/db/prisma'
 import { resolveSession } from '../auth/auth.middleware'
@@ -135,5 +136,59 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
     detail: {
       tags: ['Integrations'],
       summary: 'Check Strava connection status',
+    },
+  })
+  .delete('/', async ({ request }) => {
+    const session = await resolveSession(request)
+
+    if (!session?.user?.id) {
+      return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const stravaAccount = await prisma.account.findFirst({
+      where: { userId: session.user.id, providerId: 'strava' },
+    })
+
+    if (!stravaAccount) {
+      return new Response(JSON.stringify({ message: 'Strava not connected' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const accessToken = await decryptStravaToken(stravaAccount.accessToken)
+
+    if (accessToken) {
+      try {
+        const response = await fetch('https://www.strava.com/oauth/deauthorize', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+
+        if (!response.ok) {
+          console.error('[Strava] Deauthorize failed:', response.status)
+        }
+      }
+      catch (error) {
+        console.error('[Strava] Deauthorize error:', error)
+      }
+    }
+
+    await prisma.account.delete({
+      where: { id: stravaAccount.id },
+    })
+
+    return {
+      message: 'Strava disconnected successfully',
+    }
+  }, {
+    detail: {
+      tags: ['Integrations'],
+      summary: 'Disconnect Strava account for authenticated user',
     },
   })

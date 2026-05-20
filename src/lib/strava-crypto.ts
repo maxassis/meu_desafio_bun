@@ -1,11 +1,10 @@
 import { symmetricDecrypt, symmetricEncrypt } from 'better-auth/crypto'
-
-import { env } from '../shared/config/env'
+import { ENV } from 'varlock/env'
 
 const secretConfig = {
-  keys: new Map([[0, env.betterAuthSecret]]),
+  keys: new Map([[0, ENV.BETTER_AUTH_SECRET]]),
   currentVersion: 0,
-  legacySecret: env.betterAuthSecret,
+  legacySecret: ENV.BETTER_AUTH_SECRET,
 }
 
 export async function decryptStravaToken(encryptedToken: string | null | undefined): Promise<string | null> {

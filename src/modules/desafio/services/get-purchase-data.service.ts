@@ -1,7 +1,8 @@
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
-const CACHE_TTL_SECONDS = 3600
+const CACHE_TTL_SECONDS = 60
 
 export async function getPurchaseData(desafioId: string) {
   const cacheKey = `desafio:${desafioId}:purchaseData`
@@ -17,7 +18,7 @@ export async function getPurchaseData(desafioId: string) {
   })
 
   if (!desafio) {
-    throw new Error('Challenge not found')
+    throw new NotFoundError('Challenge not found')
   }
 
   await cacheService.set(cacheKey, desafio.purchaseData, CACHE_TTL_SECONDS)

@@ -1,3 +1,4 @@
+export * from './check-email.service'
 export * from './delete-avatar.service'
 export * from './edit-user-data.service'
 export * from './get-ranking.service'

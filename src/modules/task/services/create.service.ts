@@ -1,6 +1,7 @@
 import type { CreateTaskInput } from '../schema/create.schema'
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
+import { BadRequestError, ForbiddenError } from '../../../shared/errors'
 
 export async function createTask(input: CreateTaskInput, userId: string) {
   const userInscription = await prisma.inscription.findFirst({
@@ -19,14 +20,14 @@ export async function createTask(input: CreateTaskInput, userId: string) {
   })
 
   if (!userInscription) {
-    throw new Error('User is not registered for this challenge')
+    throw new ForbiddenError('User is not registered for this challenge')
   }
 
   if (userInscription.completed) {
-    throw new Error('This challenge is already completed. You cannot add more tasks.')
+    throw new BadRequestError('This challenge is already completed. You cannot add more tasks.')
   }
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const task = await tx.task.create({
       data: {
         name: input.name,
@@ -70,15 +71,17 @@ export async function createTask(input: CreateTaskInput, userId: string) {
       },
     })
 
-    await Promise.all([
-      cacheService.del(`desafio:${userInscription.desafio.id}`),
-      cacheService.del(`user:${userId}:desafios`),
-      cacheService.del(`user:${userId}:inscription:${input.inscriptionId}:tasks`),
-    ])
-
     return {
       message: 'Task created successfully',
       task,
     }
   })
+
+  await Promise.allSettled([
+    cacheService.del(`desafio:${userInscription.desafio.id}`),
+    cacheService.del(`user:${userId}:desafios`),
+    cacheService.del(`user:${userId}:inscription:${input.inscriptionId}:tasks`),
+  ])
+
+  return result
 }

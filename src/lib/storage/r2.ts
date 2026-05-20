@@ -3,7 +3,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
-import { env } from '../../shared/config/env'
+import { ENV } from 'varlock/env'
 
 class CloudflareR2Service {
   private s3Client: S3Client | null = null
@@ -13,7 +13,7 @@ class CloudflareR2Service {
   }
 
   private initialize() {
-    if (!env.r2AccountId || !env.r2AccessKeyId || !env.r2SecretAccessKey) {
+    if (!ENV.R2_ACCOUNT_ID || !ENV.R2_ACCESS_KEY_ID || !ENV.R2_SECRET_ACCESS_KEY) {
       throw new Error(
         'R2 not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY',
       )
@@ -21,17 +21,17 @@ class CloudflareR2Service {
 
     this.s3Client = new S3Client({
       region: 'auto',
-      endpoint: `https://${env.r2AccountId}.r2.cloudflarestorage.com`,
+      endpoint: `https://${ENV.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: env.r2AccessKeyId,
-        secretAccessKey: env.r2SecretAccessKey,
+        accessKeyId: ENV.R2_ACCESS_KEY_ID,
+        secretAccessKey: ENV.R2_SECRET_ACCESS_KEY,
       },
       forcePathStyle: true,
     })
 
     this.bucketUrlMap = {
-      avatars: env.r2PublicUrlAvatars || '',
-      desafios: env.r2PublicUrlDesafios || '',
+      avatars: ENV.R2_PUBLIC_URL_AVATARS || '',
+      desafios: ENV.R2_PUBLIC_URL_DESAFIOS || '',
     }
   }
 
@@ -100,8 +100,8 @@ class CloudflareR2Service {
       return `${bucketUrl}/${key}`
     }
 
-    if (env.r2AccountId) {
-      return `https://${bucket}.${env.r2AccountId}.r2.cloudflarestorage.com/${key}`
+    if (ENV.R2_ACCOUNT_ID) {
+      return `https://${bucket}.${ENV.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${key}`
     }
 
     return key

@@ -1,4 +1,4 @@
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
 
 export async function editUserData(id: string, data: {

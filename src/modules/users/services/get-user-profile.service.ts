@@ -1,5 +1,6 @@
-import { cacheService } from '../../../lib/cache/redis'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 const CACHE_TTL_SECONDS = 300
 
@@ -62,7 +63,7 @@ export async function getUserProfile(id: string): Promise<UserProfileResponse> {
   })
 
   if (!userData) {
-    throw new Error('User not found')
+    throw new NotFoundError('User not found')
   }
 
   const [activeCount, completedCount, allInscriptions, recentTasks, activeInscriptions, completedChallengesList]

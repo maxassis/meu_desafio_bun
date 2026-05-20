@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 
 import { auth } from '../../lib/auth'
+import { UnauthorizedError } from '../../shared/errors'
 
 export async function resolveSession(request: Request) {
   return auth.api.getSession({
@@ -8,10 +9,15 @@ export async function resolveSession(request: Request) {
   })
 }
 
-export const unauthorizedResponse = {
-  code: 'UNAUTHORIZED',
-  message: 'Unauthorized',
-} as const
+export async function getRequiredSession(request: Request) {
+  const session = await resolveSession(request)
+
+  if (!session?.session) {
+    throw new UnauthorizedError()
+  }
+
+  return session
+}
 
 export function requireAuth() {
   return t.Object({
@@ -29,10 +35,7 @@ export function createProtectedRoutes(name = 'auth-guard') {
     })
     .onBeforeHandle(({ session }) => {
       if (!session?.session) {
-        return new Response(JSON.stringify(unauthorizedResponse), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        })
+        throw new UnauthorizedError()
       }
     })
 }

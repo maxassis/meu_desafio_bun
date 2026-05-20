@@ -10,11 +10,6 @@ export const CreateDesafioMultipartSchema = z.object({
   images: z.unknown().optional(),
 })
 
-export const DesafioRoutePointSchema = z.object({
-  latitude: z.coerce.number(),
-  longitude: z.coerce.number(),
-})
-
 export const PurchaseDataSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   price: z.string().min(1, 'Price is required'),
@@ -30,11 +25,10 @@ export type PurchaseData = z.infer<typeof PurchaseDataSchema>
 
 export const CreateDesafioSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  location: z.union([
-    z.string().min(1, 'Location is required'),
-    z.array(DesafioRoutePointSchema).min(1, 'Location is required'),
-  ]),
-  distance: z.string().min(1, 'Distance is required'),
+  location: z.string().min(1, 'Location is required'),
+  distance: z.coerce
+    .number({ error: 'Distance must be a valid number' })
+    .positive('Distance must be greater than zero'),
   priceId: z.string().min(1, 'Price ID is required'),
   active: z.coerce.boolean(),
   purchaseData: z.union([

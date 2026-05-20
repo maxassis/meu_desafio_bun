@@ -1,15 +1,16 @@
-import { cacheService } from '../../../lib/cache/redis'
-import { env } from '../../../shared/config/env'
+import { ENV } from 'varlock/env'
+import { cacheService } from '../../../lib/cache/cache'
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
-const CACHE_TTL_SECONDS = 10000
+const CACHE_TTL_SECONDS = 600
 
 function getAvatarUrl(avatarFilename: string | null) {
-  if (!avatarFilename || !env.r2PublicUrlAvatars) {
+  if (!avatarFilename || !ENV.R2_PUBLIC_URL_AVATARS) {
     return null
   }
 
-  return `${env.r2PublicUrlAvatars}/${avatarFilename}`
+  return `${ENV.R2_PUBLIC_URL_AVATARS}/${avatarFilename}`
 }
 
 interface RankingItem {
@@ -49,7 +50,7 @@ export async function getRanking(desafioId: string): Promise<RankingItem[]> {
   })
 
   if (!desafio) {
-    throw new Error(`Challenge with ID ${desafioId} not found`)
+    throw new NotFoundError(`Challenge with ID ${desafioId} not found`)
   }
 
   const inscriptions = await prisma.inscription.findMany({

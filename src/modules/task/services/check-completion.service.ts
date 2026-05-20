@@ -1,4 +1,5 @@
 import { prisma } from '../../../shared/db/prisma'
+import { NotFoundError } from '../../../shared/errors'
 
 export async function checkCompletion(
   userId: string,
@@ -20,7 +21,7 @@ export async function checkCompletion(
   })
 
   if (!inscription) {
-    throw new Error('Inscription not found or does not belong to the user')
+    throw new NotFoundError('Inscription not found or does not belong to the user')
   }
 
   const currentProgress = Number(inscription.progress)
