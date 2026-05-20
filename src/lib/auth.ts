@@ -30,6 +30,7 @@ const authAllowedHosts = Array.from(
 const expoTrustedOrigins = ENV.EXPO_SCHEME
   ? [
       `${ENV.EXPO_SCHEME}://`,
+      `${ENV.EXPO_SCHEME}://strava-connected`,
       `${ENV.EXPO_SCHEME}://*`,
       `${ENV.EXPO_SCHEME}://**`,
     ]
@@ -56,7 +57,8 @@ export const auth = betterAuth({
   }),
   account: {
     encryptOAuthTokens: true,
-    storeStateStrategy: 'cookie',
+    storeStateStrategy: 'database',
+    skipStateCookieCheck: true,
     accountLinking: {
       enabled: true,
       disableImplicitLinking: true,
