@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const CreateTaskSchema = z.object({
   name: z.string().min(1, 'Task name is required'),
-  environment: z.string().min(1, 'Environment is required'),
+  environment: z.enum(['livre', 'esteira']),
   date: z.union([z.string(), z.date()]).optional().nullable(),
   duration: z.coerce.number().nonnegative().default(0),
   calories: z.coerce.number().int().nonnegative().optional(),

@@ -65,10 +65,25 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
         )
       }
 
-      const activities = await response.json()
+      const activities = await response.json() as Array<{
+        id?: number
+        name?: string
+        distance?: number
+        calories?: number
+        moving_time?: number
+        elapsed_time?: number
+        trainer?: boolean
+      }>
       console.log('[Strava] Activities count:', activities?.length ?? 0)
 
-      return activities
+      return activities.map(activity => ({
+        stravaActivityId: activity.id ?? 0,
+        environment: activity.trainer ? 'esteira' : 'livre',
+        name: activity.name ?? 'Atividade sem nome',
+        calories: typeof activity.calories === 'number' ? Math.round(activity.calories) : null,
+        distance: Number((((activity.distance ?? 0) / 1000)).toFixed(2)),
+        duration: activity.moving_time ?? activity.elapsed_time ?? 0,
+      }))
     }
     catch (fetchError) {
       console.error('[Strava] Fetch error:', fetchError)
