@@ -83,7 +83,7 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
         name: activity.name ?? 'Atividade sem nome',
         date: activity.start_date ?? null,
         calories: typeof activity.calories === 'number' ? Math.round(activity.calories) : null,
-        distance: Number((((activity.distance ?? 0) / 1000)).toFixed(2)),
+        distance: Number(((activity.distance ?? 0) / 1000)),
         duration: activity.moving_time ?? activity.elapsed_time ?? 0,
       }))
     }
