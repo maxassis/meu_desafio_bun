@@ -68,6 +68,7 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
       const activities = await response.json() as Array<{
         id?: number
         name?: string
+        start_date?: string
         distance?: number
         calories?: number
         moving_time?: number
@@ -77,9 +78,10 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
       console.log('[Strava] Activities count:', activities?.length ?? 0)
 
       return activities.map(activity => ({
-        stravaActivityId: activity.id ?? 0,
+        stravaActivityId: String(activity.id ?? ''),
         environment: activity.trainer ? 'esteira' : 'livre',
         name: activity.name ?? 'Atividade sem nome',
+        date: activity.start_date ?? null,
         calories: typeof activity.calories === 'number' ? Math.round(activity.calories) : null,
         distance: Number((((activity.distance ?? 0) / 1000)).toFixed(2)),
         duration: activity.moving_time ?? activity.elapsed_time ?? 0,

@@ -152,6 +152,7 @@ model Task {
   id            Int         @id @default(autoincrement())
   name          String
   environment   TaskEnvironment
+  stravaActivityId String?
   date          DateTime?
   duration      Decimal     @default(0)
   calories      Int?
@@ -165,5 +166,6 @@ model Task {
   updatedAt     DateTime    @updatedAt
   gpsTask       Boolean?    @default(false)
 
+  @@unique([inscriptionId, stravaActivityId])
   @@map("tasks")
 }

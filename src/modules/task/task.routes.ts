@@ -6,9 +6,10 @@ import {
   CreateTaskSchema,
   DeleteTaskParamsSchema,
   GetTasksParamsSchema,
+  ImportStravaTasksSchema,
   UpdateTaskSchema,
 } from './schema'
-import { checkCompletion, createTask, deleteTask, getTasks, updateTask } from './services'
+import { checkCompletion, createTask, deleteTask, getTasks, importStravaTasks, updateTask } from './services'
 
 export const taskRoutes = new Elysia({ prefix: '/tasks' })
   .post(
@@ -23,6 +24,21 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
       detail: {
         tags: ['Tasks'],
         summary: 'Create a task for a user inscription',
+      },
+    },
+  )
+  .post(
+    '/import-strava',
+    async ({ body, request }) => {
+      const session = await getRequiredSession(request)
+      const parsedBody = ImportStravaTasksSchema.parse(body)
+
+      return await importStravaTasks(parsedBody, session.user.id)
+    },
+    {
+      detail: {
+        tags: ['Tasks'],
+        summary: 'Import selected Strava activities as tasks',
       },
     },
   )
