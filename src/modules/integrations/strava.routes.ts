@@ -6,7 +6,7 @@ import { prisma } from '../../shared/db/prisma'
 import { resolveSession } from '../auth/auth.middleware'
 
 export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
-  .get('/activities', async ({ request }) => {
+  .get('/activities', async ({ query, request }) => {
     console.log('[Strava] Activities request started')
 
     const session = await resolveSession(request)
@@ -17,6 +17,14 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+
+    const inscriptionId = Number(query?.inscriptionId)
+    if (!Number.isInteger(inscriptionId) || inscriptionId <= 0) {
+      return new Response(
+        JSON.stringify({ message: 'inscriptionId query param is required and must be a positive integer' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      )
     }
 
     let accessToken: string | null
@@ -65,6 +73,18 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
         )
       }
 
+      const importedTasks = await prisma.task.findMany({
+        where: { inscriptionId, userId: session.user.id },
+        select: { stravaActivityId: true },
+      })
+
+      const importedSet = new Set(
+        importedTasks
+          .map(t => t.stravaActivityId)
+          .filter(id => id != null)
+          .map(Number),
+      )
+
       const activities = await response.json() as Array<{
         id?: number
         name?: string
@@ -77,8 +97,11 @@ export const stravaRoutes = new Elysia({ prefix: '/integrations/strava' })
       }>
       console.log('[Strava] Activities count:', activities?.length ?? 0)
 
-      return activities.map(activity => ({
-        stravaActivityId: String(activity.id ?? ''),
+      const pending = activities.filter(a => !importedSet.has(a.id ?? 0))
+      console.log('[Strava] Pending (not imported):', pending.length)
+
+      return pending.map(activity => ({
+        stravaActivityId: activity.id ?? 0,
         environment: activity.trainer ? 'esteira' : 'livre',
         name: activity.name ?? 'Atividade sem nome',
         date: activity.start_date ?? null,

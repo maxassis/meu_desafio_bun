@@ -3,3 +3,5 @@ variables:
   - name: baseUrl
     value: ''
     disabled: true
+  - name: inscriptionId
+    value: '1'

@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/integrations/strava/activities"
+  url: "{{baseUrl}}/integrations/strava/activities?inscriptionId={{inscriptionId}}"
   auth: inherit
 
 settings:
