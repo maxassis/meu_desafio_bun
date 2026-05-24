@@ -9,7 +9,7 @@ Manter uma base facil de entender, testar e evoluir, evitando abstracoes prematu
 ## Principios
 
 - Preferir mudancas pequenas e diretas
-- Organizar por feature ou dominio
+- Organizar por modulo ou dominio
 - Manter handlers finos
 - Colocar regra de negocio em `service`
 - Evitar injecao de dependencia formal no inicio
@@ -22,10 +22,11 @@ Manter uma base facil de entender, testar e evoluir, evitando abstracoes prematu
 src/
   app.ts
   server.ts
-  features/
-    <feature>/
-      <feature>.route.ts
-      <feature>.service.ts
+  modules/
+    <modulo>/
+      <modulo>.routes.ts
+      services/
+      schema/
   shared/
     config/
     db/
@@ -45,20 +46,20 @@ src/
 - Subir o servidor
 - Definir porta e bootstrap
 
-### `features/<feature>/<feature>.route.ts`
+### `modules/<modulo>/<modulo>.routes.ts`
 
 - Definir endpoints
 - Receber `params`, `query` e `body`
 - Chamar o `service`
 - Nao conter regra de negocio complexa
 
-### `features/<feature>/<feature>.service.ts`
+### `modules/<modulo>/services/*.service.ts`
 
 - Conter regra de negocio
 - Orquestrar chamadas internas
 - Permanecer independente da camada HTTP sempre que possivel
 
-### `features/<feature>/<feature>.repository.ts`
+### `modules/<modulo>/services/*repository*.ts`
 
 Criar somente quando necessario.
 Usar para:
@@ -67,7 +68,7 @@ Usar para:
 - acesso a APIs externas
 - persistencia ou leitura de dados
 
-### `features/<feature>/<feature>.schema.ts`
+### `modules/<modulo>/schema/*.schema.ts`
 
 Criar quando houver validacao de entrada e saida.
 Usar para:
@@ -77,9 +78,10 @@ Usar para:
 - `query`
 - `response`
 
-Validacao deve usar apenas Zod em schemas separados.
-Nao usar validacao inline na rota com `t.Object`, `t.Union` ou similares do Elysia.
-As rotas devem fazer parse com Zod e delegar a regra de negocio para o `service`.
+Preferir validacao com Zod em schemas separados.
+Evitar criar novas validacoes inline na rota com `t.Object`, `t.Union` ou similares do Elysia.
+Em codigo legado que ja usa validacao inline, migrar para Zod somente quando a rota for alterada por necessidade real.
+As rotas devem fazer parse com schema e delegar a regra de negocio para o `service`.
 
 ### `shared/`
 
@@ -92,11 +94,11 @@ Codigo transversal reutilizavel:
 
 ## Convencoes
 
-- Cada feature deve ficar isolada na propria pasta
-- Nomes de arquivos devem seguir o padrao `<feature>.<papel>.ts`
+- Cada modulo deve ficar isolado na propria pasta
+- Nomes de arquivos devem seguir o padrao `<modulo>.<papel>.ts` ou o padrao ja estabelecido no modulo
 - Nao colocar regra de negocio direto em rotas
 - Nao acessar banco diretamente da rota
-- Usar apenas Zod para validacao de entrada e saida
+- Preferir Zod para validacao de entrada e saida
 - Manter schemas em arquivos separados e reutilizaveis
 - Nao criar abstracoes genericas sem necessidade real
 - Preferir imports diretos entre arquivos enquanto o projeto for pequeno ou medio
@@ -105,11 +107,11 @@ Codigo transversal reutilizavel:
 
 Quando o projeto crescer, evoluir nesta ordem:
 
-1. Adicionar `schema.ts` nas features
-2. Adicionar `repository.ts` onde houver persistencia
+1. Adicionar ou consolidar schemas em `schema/` por modulo
+2. Adicionar `repository` onde houver persistencia
 3. Criar `shared/config`
 4. Criar tratamento global de erros
-5. Adicionar testes por feature
+5. Adicionar testes por modulo
 
 ## Banco de Dados
 
@@ -130,10 +132,10 @@ Se usar Prisma:
 
 ## Exemplo de Fluxo
 
-- `route` recebe a requisicao
+- `routes` recebe a requisicao
 - `service` executa a regra
 - `repository` acessa dados, quando existir
-- `route` devolve a resposta
+- `routes` devolve a resposta
 
 ## Regra de Decisao
 
@@ -141,4 +143,4 @@ Se houver duvida entre duas abordagens corretas:
 
 - escolher a mais simples
 - escolher a que adiciona menos arquivos
-- escolher a que preserva a clareza da feature
+- escolher a que preserva a clareza do modulo

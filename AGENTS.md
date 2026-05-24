@@ -1,5 +1,14 @@
 # Project AI Instructions
 
+This file defines execution behavior for coding tasks. Architecture and folder conventions live in `architecture-guidelines.md`.
+
+## Rule Precedence
+
+- Use this file for how to reason and execute work.
+- Use `architecture-guidelines.md` for project architecture and code organization.
+- If there is a conflict, prefer the stricter rule that keeps changes simpler and more surgical.
+- If ambiguity remains, follow this order: direct user request > this file > `architecture-guidelines.md`.
+
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
