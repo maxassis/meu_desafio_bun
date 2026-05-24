@@ -2,7 +2,7 @@ import { expo } from '@better-auth/expo'
 import { prismaAdapter } from '@better-auth/prisma-adapter'
 import { render, toPlainText } from '@react-email/render'
 import { betterAuth } from 'better-auth'
-import { emailOTP, openAPI } from 'better-auth/plugins'
+import { emailOTP, genericOAuth, openAPI } from 'better-auth/plugins'
 import { createElement } from 'react'
 
 import { ENV } from 'varlock/env'
@@ -30,6 +30,7 @@ const authAllowedHosts = Array.from(
 const expoTrustedOrigins = ENV.EXPO_SCHEME
   ? [
       `${ENV.EXPO_SCHEME}://`,
+      `${ENV.EXPO_SCHEME}://strava-connected`,
       `${ENV.EXPO_SCHEME}://*`,
       `${ENV.EXPO_SCHEME}://**`,
     ]
@@ -54,6 +55,16 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
   }),
+  account: {
+    encryptOAuthTokens: true,
+    storeStateStrategy: 'database',
+    skipStateCookieCheck: true,
+    accountLinking: {
+      enabled: true,
+      disableImplicitLinking: true,
+      allowDifferentEmails: true,
+    },
+  },
   databaseHooks: {
     user: {
       create: {
@@ -85,6 +96,102 @@ export const auth = betterAuth({
   plugins: [
     expo(),
     openAPI(),
+    ...(ENV.STRAVA_CLIENT_ID && ENV.STRAVA_CLIENT_SECRET
+      ? [
+          genericOAuth({
+            config: [
+              {
+                providerId: 'strava',
+                clientId: String(ENV.STRAVA_CLIENT_ID),
+                clientSecret: ENV.STRAVA_CLIENT_SECRET,
+                authorizationUrl: 'https://www.strava.com/oauth/authorize',
+                tokenUrl: 'https://www.strava.com/oauth/token',
+                scopes: ['read', 'activity:read_all'],
+                authentication: 'post',
+                disableSignUp: true,
+                async getToken({ code, redirectURI }) {
+                  if (!ENV.STRAVA_CLIENT_ID || !ENV.STRAVA_CLIENT_SECRET) {
+                    throw new Error('Strava OAuth is not configured.')
+                  }
+
+                  const clientId = String(ENV.STRAVA_CLIENT_ID)
+                  const clientSecret = ENV.STRAVA_CLIENT_SECRET
+
+                  const params = new URLSearchParams({
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    code,
+                    grant_type: 'authorization_code',
+                    redirect_uri: redirectURI,
+                  })
+
+                  const response = await fetch('https://www.strava.com/oauth/token', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                  })
+
+                  const data = await response.json() as {
+                    access_token?: string
+                    refresh_token?: string
+                    expires_at?: number
+                    token_type?: string
+                    scope?: string
+                    message?: string
+                    athlete?: {
+                      id: number
+                      firstname?: string
+                      lastname?: string
+                      profile?: string
+                    }
+                  }
+
+                  if (!response.ok || !data.access_token) {
+                    throw new Error(
+                      `Strava token error (${response.status}): ${JSON.stringify(data)} | redirectURI=${redirectURI}`,
+                    )
+                  }
+
+                  return {
+                    accessToken: data.access_token,
+                    refreshToken: data.refresh_token,
+                    accessTokenExpiresAt: data.expires_at ? new Date(data.expires_at * 1000) : undefined,
+                    tokenType: data.token_type,
+                    scopes: data.scope
+                      ? data.scope.split(',').map(scope => scope.trim()).filter(Boolean)
+                      : undefined,
+                    raw: data,
+                  }
+                },
+                async getUserInfo(tokens) {
+                  const athlete = tokens.raw?.athlete as {
+                    id: number
+                    firstname?: string
+                    lastname?: string
+                    profile?: string
+                  } | undefined
+
+                  if (!athlete) {
+                    return null
+                  }
+
+                  const fullName = [athlete.firstname, athlete.lastname].filter(Boolean).join(' ').trim()
+
+                  return {
+                    id: String(athlete.id),
+                    email: `strava-${athlete.id}@strava.local`,
+                    emailVerified: false,
+                    name: fullName.length > 0 ? fullName : `Strava ${athlete.id}`,
+                    image: athlete.profile,
+                  }
+                },
+              },
+            ],
+          }),
+        ]
+      : []),
     emailOTP({
       allowedAttempts: 3,
       expiresIn: emailVerificationOtpExpiresInSeconds,

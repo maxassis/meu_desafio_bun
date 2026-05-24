@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Strava OAuth</title>
+  <style>
+    body { font-family: system-ui; max-width: 600px; margin: 40px auto; padding: 20px; }
+    button { padding: 12px 24px; font-size: 16px; cursor: pointer; margin: 5px; }
+    pre { background: #f4f4f4; padding: 15px; overflow-x: auto; border-radius: 8px; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Teste Strava OAuth</h1>
+  <p id="status"></p>
+
+  <button onclick="login()">1. Login</button>
+  <button onclick="getSession()">2. Verificar Sessão</button>
+  <button onclick="linkStrava()" style="background:#fc4c02;color:white;border:none;padding:12px 24px;font-size:16px;font-weight:bold;border-radius:8px;cursor:pointer;">3. Conectar Strava</button>
+  <button onclick="clearSession()">Limpar Sessão</button>
+
+  <h3>Resultado:</h3>
+  <pre id="result">Aguardando...</pre>
+
+  <script>
+    const baseUrl = 'https://teste.maxdev.sbs';
+
+    function renderStatusFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const status = document.getElementById('status');
+      const linked = params.get('linked');
+      const error = params.get('error');
+
+      if (linked === '1') {
+        status.textContent = 'Conta Strava vinculada com sucesso.';
+        status.className = 'success';
+      }
+      else if (error) {
+        status.textContent = `Falha no callback: ${error}`;
+        status.className = 'error';
+      }
+      else {
+        status.textContent = '';
+      }
+    }
+
+    async function request(method, path, body) {
+      const opts = {
+        method,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Origin': baseUrl,
+        },
+      };
+      if (body) opts.body = JSON.stringify(body);
+
+      const res = await fetch(baseUrl + path, opts);
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } catch { json = text; }
+
+      document.getElementById('result').textContent = JSON.stringify({ status: res.status, body: json }, null, 2);
+      return json;
+    }
+
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? match[2] : null;
+    }
+
+    async function login() {
+      const result = await request('POST', '/api/auth/sign-in/email', { email: 'teste@example.com', password: 'Bondelis1!' });
+      const sessionCookie = getCookie('better-auth.session_token');
+      if (sessionCookie) {
+        document.getElementById('result').className = 'success';
+        document.getElementById('result').textContent += '\n\n✅ Cookie salvo!';
+      }
+    }
+
+    async function getSession() {
+      await request('GET', '/api/auth/get-session');
+    }
+
+    async function linkStrava() {
+      const callbackURL = `${baseUrl}/strava-test?linked=1`;
+      const json = await request('POST', '/api/auth/oauth2/link', {
+        providerId: 'strava',
+        callbackURL,
+        errorCallbackURL: `${baseUrl}/strava-test?error=oauth`,
+        scopes: ['read', 'activity:read_all'],
+      });
+
+      if (json?.url) {
+        document.getElementById('result').textContent += '\n\n🚀 Abrindo Strava...';
+        window.location.href = json.url;
+      }
+    }
+
+    function clearSession() {
+      document.cookie = 'better-auth.session_token=; Max-Age=0; path=/';
+      document.cookie = 'better-auth.state=; Max-Age=0; path=/';
+      document.getElementById('result').textContent = 'Sessão limpa!';
+    }
+
+    renderStatusFromQuery();
+  </script>
+</body>
+</html>

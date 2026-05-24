@@ -2,3 +2,5 @@ name: tunnel
 variables:
   - name: baseUrl
     value: https://teste.maxdev.sbs
+  - name: inscriptionId
+    value: '1'

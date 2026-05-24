@@ -1,22 +1,23 @@
 info:
-  name: login
+  name: requisição strava
   type: http
-  seq: 1
+  seq: 9
 
 http:
   method: POST
-  url: '{{baseUrl}}/api/auth/sign-in/email'
+  url: "{{baseUrl}}/api/auth/oauth2/link"
   headers:
     - name: Origin
-      value: http://127.0.0.1:5500
+      value: "{{baseUrl}}"
     - name: Content-Type
       value: application/json
   body:
     type: json
     data: |-
       {
-        "email": "teste@example.com",
-        "password": "Bondelis1!"
+        "providerId": "strava",
+        "callbackURL": "meudesafio2://strava-connected",
+        "scopes": ["read", "activity:read_all"]
       }
   auth: inherit
 

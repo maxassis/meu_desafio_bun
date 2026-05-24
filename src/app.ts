@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { cors } from '@elysiajs/cors'
 import { openapi } from '@elysiajs/openapi'
 import { Elysia } from 'elysia'
@@ -6,7 +8,7 @@ import { ENV } from 'varlock/env'
 import { authOpenAPI } from './lib/auth'
 import { authPlugin } from './modules/auth/auth.plugin'
 import { desafioRoutes } from './modules/desafio/desafio.routes'
-import { helloRoutes } from './modules/hello/hello.route'
+import { stravaRoutes } from './modules/integrations/strava.routes'
 import { taskRoutes } from './modules/task/task.routes'
 import { usersRoutes } from './modules/users/users.routes'
 import { errorHandler } from './shared/error-handler'
@@ -37,6 +39,7 @@ export const app = new Elysia()
         tags: [
           { name: 'Better Auth', description: 'Native Better Auth routes' },
           { name: 'Desafio', description: 'Challenge operations' },
+          { name: 'Integrations', description: 'External service integrations' },
           { name: 'Users', description: 'User operations' },
           { name: 'Tasks', description: 'Task operations' },
         ],
@@ -46,7 +49,14 @@ export const app = new Elysia()
     }),
   )
   .use(authPlugin)
-  .use(helloRoutes)
   .use(desafioRoutes)
+  .use(stravaRoutes)
   .use(usersRoutes)
   .use(taskRoutes)
+  .get('/strava-test', async () => {
+    const filePath = join(process.cwd(), 'strava-test.html')
+    const html = readFileSync(filePath, 'utf-8')
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html' },
+    })
+  })

@@ -1,0 +1,44 @@
+info:
+  name: importar atividades
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/tasks/import-strava"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "inscriptionId": 2,
+        "activities": [
+          {
+            "stravaActivityId": 986543210,
+            "name": "Corrida leve da manhã",
+            "environment": "livre",
+            "distance": 5.42,
+            "duration": 1930,
+            "date": "2026-05-21T10:15:00Z",
+            "calories": 360
+          },
+          {
+            "stravaActivityId": 986543211,
+            "name": "Treino de esteira",
+            "environment": "esteira",
+            "distance": 3.15,
+            "duration": 1260,
+            "date": "2026-05-22T18:40:00Z",
+            "calories": null
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

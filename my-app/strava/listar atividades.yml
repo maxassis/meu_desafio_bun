@@ -1,11 +1,11 @@
 info:
-  name: pegando as tarefas de um desafio
+  name: listar atividades
   type: http
   seq: 1
 
 http:
   method: GET
-  url: "{{baseUrl}}/tasks/get-tasks/2"
+  url: "{{baseUrl}}/integrations/strava/activities?inscriptionId={{inscriptionId}}"
   auth: inherit
 
 settings:
