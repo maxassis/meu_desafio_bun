@@ -16,11 +16,11 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     '/create',
     async ({ body, request }) => {
       const session = await getRequiredSession(request)
-      const parsedBody = CreateTaskSchema.parse(body)
 
-      return await createTask(parsedBody, session.user.id)
+      return await createTask(body, session.user.id)
     },
     {
+      body: CreateTaskSchema,
       detail: {
         tags: ['Tasks'],
         summary: 'Create a task for a user inscription',
@@ -31,11 +31,11 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     '/import-strava',
     async ({ body, request }) => {
       const session = await getRequiredSession(request)
-      const parsedBody = ImportStravaTasksSchema.parse(body)
 
-      return await importStravaTasks(parsedBody, session.user.id)
+      return await importStravaTasks(body, session.user.id)
     },
     {
+      body: ImportStravaTasksSchema,
       detail: {
         tags: ['Tasks'],
         summary: 'Import selected Strava activities as tasks',
@@ -46,11 +46,11 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     '/get-tasks/:inscriptionId',
     async ({ params, request }) => {
       const session = await getRequiredSession(request)
-      const { inscriptionId } = GetTasksParamsSchema.parse(params)
 
-      return getTasks(session.user.id, inscriptionId)
+      return getTasks(session.user.id, params.inscriptionId)
     },
     {
+      params: GetTasksParamsSchema,
       detail: {
         tags: ['Tasks'],
         summary: 'Get user tasks by inscription',
@@ -61,15 +61,15 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     '/check-completion',
     async ({ body, request }) => {
       const session = await getRequiredSession(request)
-      const parsedBody = CheckCompletionSchema.parse(body)
 
       return await checkCompletion(
         session.user.id,
-        parsedBody.inscriptionId,
-        parsedBody.distance,
+        body.inscriptionId,
+        body.distance,
       )
     },
     {
+      body: CheckCompletionSchema,
       detail: {
         tags: ['Tasks'],
         summary: 'Check if a task distance completes the challenge',
@@ -80,11 +80,11 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     '/delete-task/:taskId',
     async ({ params, request }) => {
       const session = await getRequiredSession(request)
-      const { taskId } = DeleteTaskParamsSchema.parse(params)
 
-      return deleteTask(session.user.id, taskId)
+      return deleteTask(session.user.id, params.taskId)
     },
     {
+      params: DeleteTaskParamsSchema,
       detail: {
         tags: ['Tasks'],
         summary: 'Delete a user task',
@@ -95,12 +95,12 @@ export const taskRoutes = new Elysia({ prefix: '/tasks' })
     '/update-task/:taskId',
     async ({ body, params, request }) => {
       const session = await getRequiredSession(request)
-      const parsedBody = UpdateTaskSchema.parse(body)
-      const { taskId } = DeleteTaskParamsSchema.parse(params)
 
-      return updateTask(session.user.id, taskId, parsedBody)
+      return updateTask(session.user.id, params.taskId, body)
     },
     {
+      body: UpdateTaskSchema,
+      params: DeleteTaskParamsSchema,
       detail: {
         tags: ['Tasks'],
         summary: 'Update a user task',

@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 
 import { getRequiredSession } from '../auth/auth.middleware'
-import { CreateDesafioMultipartSchema, CreateDesafioSchema, GetDesafioParamsSchema } from './schema'
+import { CreateDesafioMultipartSchema, GetDesafioParamsSchema } from './schema'
 import {
   createDesafio,
   getAllDesafio,
@@ -30,30 +30,20 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
     async ({ body, request }) => {
       await getRequiredSession(request)
 
-      const parsedMultipartBody = CreateDesafioMultipartSchema.parse(body)
-      const parsed = CreateDesafioSchema.parse({
-        name: parsedMultipartBody.name,
-        location: parsedMultipartBody.location,
-        distance: parsedMultipartBody.distance,
-        active: parsedMultipartBody.active,
-        priceId: parsedMultipartBody.priceId,
-        purchaseData: parsedMultipartBody.purchaseData,
-      })
-
-      const files = Array.isArray(parsedMultipartBody.images)
-        ? parsedMultipartBody.images
-        : parsedMultipartBody.images
-          ? [parsedMultipartBody.images]
+      const files = Array.isArray(body.images)
+        ? body.images
+        : body.images
+          ? [body.images]
           : []
 
       const result = await createDesafio(
         {
-          name: parsed.name,
-          location: parsed.location,
-          distance: parsed.distance,
-          active: parsed.active,
-          priceId: parsed.priceId,
-          purchaseData: parsed.purchaseData,
+          name: body.name,
+          location: body.location,
+          distance: body.distance,
+          active: body.active,
+          priceId: body.priceId,
+          purchaseData: body.purchaseData,
         },
         files,
       )
@@ -61,6 +51,7 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
       return result
     },
     {
+      body: CreateDesafioMultipartSchema,
       detail: {
         tags: ['Desafio'],
         summary: 'Create challenge',
@@ -71,11 +62,11 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
     '/register-user-desafio/:id',
     async ({ params, request }) => {
       const session = await getRequiredSession(request)
-      const { id } = GetDesafioParamsSchema.parse(params)
 
-      return await registerUserDesafio(id, session.user.id)
+      return await registerUserDesafio(params.id, session.user.id)
     },
     {
+      params: GetDesafioParamsSchema,
       detail: {
         tags: ['Desafio'],
         summary: 'Register authenticated user in a challenge',
@@ -87,11 +78,11 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
     async ({ params, request }) => {
       await getRequiredSession(request)
 
-      const { id } = GetDesafioParamsSchema.parse(params)
-      const resultado = await getDesafio(id)
+      const resultado = await getDesafio(params.id)
       return resultado
     },
     {
+      params: GetDesafioParamsSchema,
       detail: {
         tags: ['Desafio'],
         summary: 'Get challenge by ID',
@@ -103,10 +94,10 @@ export const desafioRoutes = new Elysia({ prefix: '/desafio' })
     async ({ params, request }) => {
       await getRequiredSession(request)
 
-      const { id } = GetDesafioParamsSchema.parse(params)
-      return await getPurchaseData(id)
+      return await getPurchaseData(params.id)
     },
     {
+      params: GetDesafioParamsSchema,
       detail: {
         tags: ['Desafio'],
         summary: 'Get challenge purchase data',

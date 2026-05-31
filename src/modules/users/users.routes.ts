@@ -1,5 +1,4 @@
 import { Elysia, t } from 'elysia'
-import { z } from 'zod'
 
 import { BadRequestError } from '../../shared/errors'
 import { getRequiredSession } from '../auth/auth.middleware'
@@ -57,11 +56,10 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
     async ({ params, request }) => {
       await getRequiredSession(request)
 
-      const { id } = GetUserProfileParamsSchema.parse(params)
-
-      return await getUserProfile(id)
+      return await getUserProfile(params.id)
     },
     {
+      params: GetUserProfileParamsSchema,
       detail: {
         tags: ['Users'],
         summary: 'Get user profile by ID',
@@ -73,11 +71,10 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
     async ({ params, request }) => {
       await getRequiredSession(request)
 
-      const { desafioId } = GetRankingParamsSchema.parse(params)
-
-      return await getRanking(desafioId)
+      return await getRanking(params.desafioId)
     },
     {
+      params: GetRankingParamsSchema,
       detail: {
         tags: ['Users'],
         summary: 'Get challenge ranking by ID',
@@ -88,18 +85,18 @@ export const usersRoutes = new Elysia({ prefix: '/users' })
     '/edit-user-data',
     async ({ body, request }) => {
       const session = await getRequiredSession(request)
-      const parsedBody = EditUserDataSchema.parse(body)
 
       return editUserData(session.user.id, {
-        avatarFilename: parsedBody.avatar_filename,
-        bio: parsedBody.bio,
-        gender: parsedBody.gender,
-        sport: parsedBody.sport,
-        birthDate: parsedBody.birthDate,
-        name: parsedBody.full_name ?? undefined,
+        avatarFilename: body.avatar_filename,
+        bio: body.bio,
+        gender: body.gender,
+        sport: body.sport,
+        birthDate: body.birthDate,
+        name: body.full_name ?? undefined,
       })
     },
     {
+      body: EditUserDataSchema,
       detail: {
         tags: ['Users'],
         summary: 'Update authenticated user data',

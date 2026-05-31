@@ -6,9 +6,6 @@ import { randomUUID } from 'node:crypto'
 import { r2Service } from '../../../lib/storage/r2'
 import { prisma } from '../../../shared/db/prisma'
 import { BadRequestError, DomainError } from '../../../shared/errors'
-import {
-  PurchaseDataSchema,
-} from '../schema/create.schema'
 
 const MAX_DESAFIO_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 const allowedImageTypes = {
@@ -47,9 +44,6 @@ export async function createDesafio(
   }
 
   const parsedLocation = location
-  const parsedPurchaseData = PurchaseDataSchema.parse(
-    typeof purchaseData === 'string' ? JSON.parse(purchaseData) : purchaseData,
-  )
   const parsedDistance = distance
 
   const imageUrls: string[] = []
@@ -105,7 +99,7 @@ export async function createDesafio(
   }
 
   const updatedPurchaseData = {
-    ...parsedPurchaseData,
+    ...purchaseData,
     distance: parsedDistance,
     images: imageUrls,
   }
