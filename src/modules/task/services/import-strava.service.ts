@@ -33,13 +33,18 @@ export async function importStravaTasks(input: ImportStravaTasksInput, userId: s
     let skipped = 0
 
     for (const activity of input.activities) {
+      if (activity.date < userInscription.createdAt) {
+        skipped += 1
+        continue
+      }
+
       try {
         const task = await tx.task.create({
           data: {
             name: activity.name,
             environment: activity.environment,
             stravaActivityId: activity.stravaActivityId,
-            date: new Date(),
+            date: activity.date,
             duration: activity.duration,
             calories: activity.calories ?? null,
             local: null,

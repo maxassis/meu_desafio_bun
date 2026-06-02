@@ -13,8 +13,8 @@ http:
     type: json
     data: |-
       {
-        "name": "Bondis",
-        "email": "fernandaassis.ux@gmail.com",
+        "name": "max",
+        "email": "max.assis@outlook.com",
         "password": "12345678",
         "callbackURL": "{{baseUrl}}"
       }

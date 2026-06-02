@@ -143,6 +143,7 @@ model Inscription {
   desafio     Desafio   @relation(fields: [desafioId], references: [id], onDelete: Cascade)
   completed   Boolean   @default(false)
   completedAt DateTime?
+  createdAt   DateTime  @default(now())
 
   @@unique([userId, desafioId])
   @@map("inscription")

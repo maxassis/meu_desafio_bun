@@ -7,6 +7,7 @@ const StravaActivitySchema = z.object({
   distance: z.coerce.number().nonnegative(),
   duration: z.coerce.number().nonnegative().default(0),
   calories: z.coerce.number().int().nonnegative().optional().nullable(),
+  date: z.coerce.date(),
 })
 
 export const ImportStravaTasksSchema = z.object({
